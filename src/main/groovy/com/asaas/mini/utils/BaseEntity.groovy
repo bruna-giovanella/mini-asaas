@@ -8,6 +8,15 @@ class BaseEntity {
     static mapping = {
         tablePerHierarchy false
     }
+
+    void softDelete() {
+        this.deleted = true;
+    }
+
+    void restore() {
+        this.deleted = false;
+    }
+
 }
 
 /*
@@ -16,7 +25,7 @@ MAPPING
     1. o nome mapping é predefinido pelo GORM. O Grails (via GORM) procura um campo mapping dentro das classes de
 domínio para entender como mapear a classe no banco de dados.
 
-    2. O Grails só reconhece static mapping como bloco de configuração do mapeamento ORM
+    2. O Grails só reconhece *static mapping* como bloco de configuração do mapeamento ORM
 
 
 TABLE PER HIERARCHY - TPH
