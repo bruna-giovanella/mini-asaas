@@ -32,9 +32,17 @@ class CustomerService {
     }
 
     //restore
+    public void restoreCustomer(Long id) {
+        Customer customer = customer.findByIdAndDeleted(id, true)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found or is not deleted")
+        }
+
+        customer.restore()
+    }
 }
 
 /* Service:
     Camada responsável pelas regras de negócio e as operações específicas do domínio;
-
  */
