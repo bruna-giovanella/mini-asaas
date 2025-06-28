@@ -4,9 +4,11 @@ import javax.transaction.Transactional
 import javax.xml.bind.ValidationException
 
 @Transactional // faz com que o método aconteça por completo, ou de rollback
+
+//Service: Camada responsável pelas regras de negócio e as operações específicas do domínio;
 class CustomerService {
 
-    //Cadastro de customer
+//Cadastro de customer
     public Customer save(Map params) {
         Customer customerValues = validateCustomerParams(params)
 
@@ -76,7 +78,7 @@ class CustomerService {
 
     //Busca por ID
 
-    //Soft delete
+//Soft delete
     public void deleteCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
 
@@ -94,7 +96,7 @@ class CustomerService {
         }
     }
 
-    //restore
+//restore
     public void restoreCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
@@ -106,6 +108,4 @@ class CustomerService {
     }
 }
 
-/* Service:
-    Camada responsável pelas regras de negócio e as operações específicas do domínio;
- */
+
