@@ -1,10 +1,9 @@
 package com.asaas.mini
 
-import javax.transaction.Transactional
-import javax.xml.bind.ValidationException
+import grails.gorm.transactions.Transactional
+import org.grails.datastore.mapping.validation.ValidationException
 
 @Transactional // faz com que o método aconteça por completo, ou de rollback
-
 //Service: Camada responsável pelas regras de negócio e as operações específicas do domínio;
 class CustomerService {
 
@@ -15,7 +14,7 @@ class CustomerService {
         if (customerValues.hasErrors()) {
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
-        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
+        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
             // verificar duplicidade de documento
             customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
             throw new ValidationException("Error creating customer", customerValues.errors)
@@ -65,18 +64,26 @@ class CustomerService {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
         }
 
-        if (!params.address) {
-            customer.errors.rejectValue("address", "address.required", "Address is required")
+        if (!params.cep?.trim()) {
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+        }
+
+        if (!params.city?.trim()) {
+            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+        }
+
+        if (!params.state?.trim()) {
+            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
 
         return customer
     }
 
-    //Atualização de customer
+//Atualização de customer
 
-    //Listagem e filtros de customer
+//Listagem e filtros de customer
 
-    //Busca por ID
+//Busca por ID
 
 //Soft delete
     public void deleteCustomer(Long id) {

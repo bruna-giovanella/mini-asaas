@@ -2,7 +2,7 @@ package com.asaas.mini.utils
 
 class BaseEntity {
     Date dateCreated;
-    Date lastUpdate;
+    Date lastUpdated;
     Boolean deleted = false;
 
     static mapping = {
