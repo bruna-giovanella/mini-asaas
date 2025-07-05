@@ -3,11 +3,9 @@ package com.asaas.mini
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 
-@Transactional // faz com que o método aconteça por completo, ou de rollback
-//Service: Camada responsável pelas regras de negócio e as operações específicas do domínio;
+@Transactional
 class CustomerService {
 
-//Cadastro de customer
     public Customer save(Map params) {
         Customer customerValues = validateCustomerParams(params)
 
@@ -79,13 +77,9 @@ class CustomerService {
         return customer
     }
 
-//Atualização de customer
 
-//Listagem e filtros de customer
 
-//Busca por ID
 
-//Soft delete
     public void deleteCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
 
@@ -103,7 +97,9 @@ class CustomerService {
         }
     }
 
-//restore
+
+
+
     public void restoreCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
