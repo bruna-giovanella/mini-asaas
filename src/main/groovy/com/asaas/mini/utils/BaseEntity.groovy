@@ -18,6 +18,7 @@ class BaseEntity {
 
     void restore() {
         this.deleted = false
+        this.markDirty('deleted')
         this.save(flush: true, failOnError: true)
     }
 
