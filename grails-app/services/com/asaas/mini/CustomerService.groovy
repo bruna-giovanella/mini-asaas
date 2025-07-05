@@ -79,6 +79,16 @@ class CustomerService {
 
 
 
+    public Customer getCustomer(Long id) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Customer customer = Customer.findByIdAndDeleted(id, false)
+        return customer;
+    }
+
+
 
     public void deleteCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
@@ -96,7 +106,6 @@ class CustomerService {
             throw new IllegalArgumentException("Customer has active payments")
         }
     }
-
 
 
 
