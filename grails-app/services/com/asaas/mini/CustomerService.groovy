@@ -35,6 +35,7 @@ class CustomerService {
 
         return customer.save(flush: true, failOnError: true)
 
+
     }
 
     public Customer updateCustomer(Long id, Map params) {
@@ -121,7 +122,7 @@ class CustomerService {
             throw new IllegalArgumentException("ID is required")
         }
         Customer customer = Customer.findByIdAndDeleted(id, false)
-        return customer;
+        return customer
     }
 
 
