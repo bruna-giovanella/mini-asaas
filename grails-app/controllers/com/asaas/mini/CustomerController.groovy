@@ -33,6 +33,20 @@ class CustomerController {
         }
     }
 
+    def update() {
+        try {
+            Long id = params.id as Long
+            def customer = customerService.updateCustomer(id, params)
+            respond customer, [status: 200]
+        } catch (IllegalArgumentException e) {
+            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
+        } catch (ValidationException e) {
+            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     def delete() {
         try {
             Long id = params.id as Long

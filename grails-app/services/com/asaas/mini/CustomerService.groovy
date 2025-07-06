@@ -13,12 +13,10 @@ class CustomerService {
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            // verificar duplicidade de documento
             customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByEmail(params.email)) {
-            // verificar duplicidade de email
             customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
@@ -37,6 +35,47 @@ class CustomerService {
 
         return customer.save(flush: true, failOnError: true)
 
+    }
+
+    public Customer updateCustomer(Long id, Map params) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Customer customer = Customer.findByIdAndDeleted(id, false)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found")
+        }
+
+        Customer validateCustomer = validateCustomerParams(params)
+
+        if (customer.hasErrors()) {
+            throw new ValidationException("Error updating customer", customer.errors)
+        }
+
+        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
+
+        if (existingCpfCnpj && existingCpfCnpj.id != customer.id) {
+            validatedCustomer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+            throw new ValidationException("Error updating customer", validatedCustomer.errors)
+        }
+        Customer existingEmail = Customer.findByEmail(params.email)
+        if (existingEmail && existingEmail.id != customer.id) {
+            validatedCustomer.errors.rejectValue("email", "email.exists", "There is already a customer with this email")
+            throw new ValidationException("Error updating customer", validatedCustomer.errors)
+        }
+
+        customer.name = params.name
+        customer.email = params.email
+        customer.cpfCnpj = params.cpfCnpj
+
+        customer.address.cep = params.cep
+        customer.address.city = params.city
+        customer.address.state = params.state
+        customer.address.complement = params.complement
+
+        return customer.save(flush: true, failOnError: true)
     }
 
     private Customer validateCustomerParams(Map params) {
@@ -73,21 +112,17 @@ class CustomerService {
         if (!params.state?.trim()) {
             customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
-
         return customer
     }
-
 
 
     public Customer getCustomer(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
-
         Customer customer = Customer.findByIdAndDeleted(id, false)
         return customer;
     }
-
 
 
     public void deleteCustomer(Long id) {
@@ -96,7 +131,6 @@ class CustomerService {
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
         }
-
         validateDelete(customer)
         customer.softDelete()
     }
@@ -108,14 +142,12 @@ class CustomerService {
     }
 
 
-
     public void restoreCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found or is not deleted")
         }
-
         customer.restore()
     }
 }
