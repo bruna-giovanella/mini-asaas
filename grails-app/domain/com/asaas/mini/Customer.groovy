@@ -8,9 +8,6 @@ class Customer extends BaseEntity{
     String cpfCnpj
     Address address
 
-    Customer customer
-    static belongsTo = [customer: Customer]
-
     static constraints = {
         name nullable: false, blank: false, maxSize: 255
         email nullable: false, blank: false, email: true, maxSize: 255,  unique: true

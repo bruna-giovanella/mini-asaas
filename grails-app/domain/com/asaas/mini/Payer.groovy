@@ -8,6 +8,9 @@ class Payer extends BaseEntity{
     String contactNumber
     String cpfCnpj
     Address address
+    Customer customer
+
+    static belongsTo = [customer: Customer]
 
     static constraints = {
         name nullable: false, blank: false, maxSize: 255
