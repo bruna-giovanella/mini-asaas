@@ -3,12 +3,9 @@ package com.asaas.mini
 import javax.transaction.Transactional
 import javax.xml.bind.ValidationException
 
-@Transactional // faz com que o método aconteça por completo, ou de rollback
-
-//Service: Camada responsável pelas regras de negócio e as operações específicas do domínio;
+@Transactional
 class CustomerService {
 
-//Cadastro de customer
     public Customer save(Map params) {
         Customer customerValues = validateCustomerParams(params)
 
@@ -16,12 +13,10 @@ class CustomerService {
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByCpfCnjp(params.cpfCnpj)) {
-            // verificar duplicidade de documento
             customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByEmail(params.email)) {
-            // verificar duplicidade de email
             customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
@@ -65,22 +60,25 @@ class CustomerService {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
         }
 
-        if (!params.address) {
-            customer.errors.rejectValue("address", "address.required", "Address is required")
+        if (!params.cep?.trim()) {
+            customer.errors.rejectValue("address.cep", "address.cep.blank", "CEP cannot be empty")
+        } else if (!(params.cep ==~ /^\d{8}$/)) {
+            customer.errors.rejectValue("address.cep", "address.cep.invalid", "CEP must have 8 digits")
+        }
+
+        if (!params.city?.trim()) {
+            customer.errors.rejectValue("address.city", "address.city.blank", "City cannot be empty")
+        }
+
+        if (!params.state?.trim()) {
+            customer.errors.rejectValue("address.state", "address.state.blank", "State cannot be empty")
         }
 
         return customer
     }
 
-    //Atualização de customer
-
-    //Listagem e filtros de customer
-
-    //Busca por ID
-
-//Soft delete
     public void deleteCustomer(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
+        Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
@@ -96,7 +94,6 @@ class CustomerService {
         }
     }
 
-//restore
     public void restoreCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
