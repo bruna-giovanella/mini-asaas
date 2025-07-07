@@ -20,6 +20,23 @@ class PayerController {
         }
     }
 
+    def show() {
+        try {
+            Customer customer = getCustomerLogged() // trocar pelo SpringSecurity
+            Long id = params.id as Long
+
+            def payer = payerService.get(id, customer)
+
+            if (!payer) {
+                render(status: 404, text: "Payer not found")
+                return
+            }
+            respond payer
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     def delete() {
         try {
             Customer customer = getCustomerLogged() // trocar pelo SpringSecurity
