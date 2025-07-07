@@ -92,5 +92,14 @@ class PayerService {
         payer.softDelete()
     }
 
+    public void restore(Long id, customer) {
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found or is not deleted")
+        }
+
+        payer.restore()
+    }
 
 }
