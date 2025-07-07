@@ -78,4 +78,19 @@ class PayerService {
         return payer
     }
 
+    public void delete(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Payer not found for this customer")
+        }
+
+        payer.softDelete()
+    }
+
+
 }
