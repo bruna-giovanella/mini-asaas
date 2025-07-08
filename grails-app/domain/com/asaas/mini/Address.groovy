@@ -2,9 +2,12 @@ package com.asaas.mini
 
 class Address {
     String cep
+
     String city
+
     String state
-    String complement
+
+                                                                                                                                                    String complement
 
     static constraints = {
         cep nullable: false, blank: false, matches: /^\d{5}-?\d{3}$/

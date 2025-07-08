@@ -4,12 +4,12 @@ import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
     static responseFormats = ['json']
-    CustomerService customerService // injeção de dependência automática
+    CustomerService customerService
 
     def save() {
         try {
             def customer = customerService.save(params)
-            respond customer, [status: 201] // para retornar Json 201 (created)
+            respond customer, [status: 201]
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
         }
