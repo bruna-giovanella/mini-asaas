@@ -7,7 +7,7 @@ class Address {
 
     String state
 
-                                                                                                                                                    String complement
+    String complement
 
     static constraints = {
         cep nullable: false, blank: false, matches: /^\d{5}-?\d{3}$/

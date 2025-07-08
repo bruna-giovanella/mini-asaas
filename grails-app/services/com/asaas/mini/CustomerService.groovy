@@ -13,12 +13,10 @@ class CustomerService {
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            // verificar duplicidade de documento
             customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByEmail(params.email)) {
-            // verificar duplicidade de email
             customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
