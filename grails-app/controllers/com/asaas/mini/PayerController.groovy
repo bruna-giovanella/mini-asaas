@@ -9,7 +9,7 @@ class PayerController {
 
     def save() {
         try {
-            Customer customer = getCustomerLogged() // trocar pelo SpringSecurity depois
+            Customer customer = getCustomerLogged()
             Payer payer = payerService.save(params, customer)
             respond payer, [status: 201]
 
