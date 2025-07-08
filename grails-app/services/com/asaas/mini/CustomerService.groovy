@@ -13,7 +13,9 @@ class CustomerService {
         }
 
         validateDelete(customer)
-        customer.softDelete()
+        customer.deleted = true
+        customer.markDirty('deleted')
+        customer.save(flush:true, failOnError:true)
     }
 
     private validateDelete(Customer customer) {
