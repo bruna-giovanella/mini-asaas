@@ -100,7 +100,7 @@ class PayerService {
 
         payer.deleted = true
         payer.markDirty('deleted')
-        payer.save(flush:true, failOnError:true)    }
+        payer.save(failOnError:true)    }
 
     public void restore(Long id, customer) {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
@@ -111,7 +111,7 @@ class PayerService {
 
         payer.deleted = false
         payer.markDirty('deleted')
-        payer.save(flush: true, failOnError: true)
+        payer.save(failOnError: true)
     }
 
 }
