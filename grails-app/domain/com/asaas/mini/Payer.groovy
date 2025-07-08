@@ -4,10 +4,15 @@ import com.asaas.mini.utils.BaseEntity
 
 class Payer extends BaseEntity{
     String name
+
     String email
+
     String contactNumber
+
     String cpfCnpj
+
     Address address
+
     Customer customer
 
     static belongsTo = [customer: Customer]
