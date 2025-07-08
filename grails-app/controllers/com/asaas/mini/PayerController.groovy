@@ -9,7 +9,7 @@ class PayerController {
 
     def save() {
         try {
-            Customer customer = getCustomerLogged() // trocar pelo SpringSecurity
+            Customer customer = getCustomerLogged()
             Payer payer = payerService.save(params, customer)
             respond payer, [status: 201]
 
@@ -22,7 +22,7 @@ class PayerController {
 
     def delete() {
         try {
-            Customer customer = getCustomerLogged() // trocar pelo SpringSecurity
+            Customer customer = getCustomerLogged()
             Long id = params.id as Long
             payerService.delete(id, customer)
             render(status: 204)
@@ -36,7 +36,7 @@ class PayerController {
 
     def restore() {
         try {
-            Customer customer = getCustomerLogged() // trocar pelo SpringSecurity
+            Customer customer = getCustomerLogged()
             Long id = params.id as Long
             payerService.restore(id, customer)
             render(status: 200)
