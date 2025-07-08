@@ -91,7 +91,7 @@ class PayerService {
 
         payer.deleted = true
         payer.markDirty('deleted')
-        payer.save(flush:true, failOnError:true)    }
+        payer.save(failOnError:true)    }
 
 
 }
