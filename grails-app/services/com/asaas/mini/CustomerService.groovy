@@ -116,7 +116,6 @@ class CustomerService {
         return customer
     }
 
-
     public Customer get(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
@@ -125,9 +124,8 @@ class CustomerService {
         return customer
     }
 
-
     public void delete(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
+        Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
@@ -141,7 +139,6 @@ class CustomerService {
             throw new IllegalArgumentException("Customer has active payments")
         }
     }
-
 
     public void restore(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
