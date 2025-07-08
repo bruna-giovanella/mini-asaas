@@ -87,7 +87,7 @@ class CustomerService {
         validateDelete(customer)
         customer.deleted = true
         customer.markDirty('deleted')
-        customer.save(flush:true, failOnError:true)
+        customer.save(failOnError:true)
     }
 
     private validateDelete(Customer customer) {
@@ -105,6 +105,6 @@ class CustomerService {
 
         customer.deleted = false
         customer.markDirty('deleted')
-        customer.save(flush: true, failOnError: true)
+        customer.save(failOnError: true)
     }
 }
