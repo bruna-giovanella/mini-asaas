@@ -116,7 +116,6 @@ class CustomerService {
         return customer
     }
 
-
     public Customer get(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
@@ -125,15 +124,16 @@ class CustomerService {
         return customer
     }
 
-
     public void delete(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
+        Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
         }
         validateDelete(customer)
-        customer.softDelete()
+        customer.deleted = true
+        customer.markDirty('deleted')
+        customer.save(flush:true, failOnError:true)
     }
 
     private validateDelete(Customer customer) {
@@ -142,15 +142,15 @@ class CustomerService {
         }
     }
 
-
     public void restore(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found or is not deleted")
         }
-        customer.restore()
+
+        customer.deleted = false
+        customer.markDirty('deleted')
+        customer.save(flush: true, failOnError: true)
     }
 }
-
-
