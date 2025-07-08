@@ -98,8 +98,9 @@ class PayerService {
             throw new IllegalArgumentException("Payer not found for this customer")
         }
 
-        payer.softDelete()
-    }
+        payer.deleted = true
+        payer.markDirty('deleted')
+        payer.save(flush:true, failOnError:true)    }
 
     public void restore(Long id, customer) {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
@@ -108,7 +109,9 @@ class PayerService {
             throw new IllegalArgumentException("Customer not found or is not deleted")
         }
 
-        payer.restore()
+        payer.deleted = false
+        payer.markDirty('deleted')
+        payer.save(flush: true, failOnError: true)
     }
 
 }
