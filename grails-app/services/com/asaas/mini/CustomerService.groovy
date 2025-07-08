@@ -13,12 +13,10 @@ class CustomerService {
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            // verificar duplicidade de documento
             customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
         if (Customer.findByEmail(params.email)) {
-            // verificar duplicidade de email
             customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
             throw new ValidationException("Error creating customer", customerValues.errors)
         }
@@ -77,11 +75,8 @@ class CustomerService {
         return customer
     }
 
-
-
-
     public void deleteCustomer(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false); // procura no banco pelo ID e nao deletado
+        Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
@@ -96,9 +91,6 @@ class CustomerService {
             throw new IllegalArgumentException("Customer has active payments")
         }
     }
-
-
-
 
     public void restoreCustomer(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
