@@ -15,12 +15,24 @@ class CustomerService {
         validateDelete(customer)
         customer.deleted = true
         customer.markDirty('deleted')
-        customer.save(flush:true, failOnError:true)
+        customer.save(failOnError:true)
     }
 
     private validateDelete(Customer customer) {
         if (Payment.findByCustomerAndDeleted(customer, false)) {
             throw new IllegalArgumentException("Customer has active payments")
         }
+    }
+
+    public void restoreCustomer(Long id) {
+        Customer customer = customer.findByIdAndDeleted(id, true)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found or is not deleted")
+        }
+
+        customer.deleted = false
+        customer.markDirty('deleted')
+        customer.save(failOnError: true)
     }
 }
