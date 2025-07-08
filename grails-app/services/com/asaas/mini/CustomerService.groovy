@@ -13,7 +13,9 @@ class CustomerService {
         }
 
         validateDelete(customer)
-        customer.softDelete()
+        customer.deleted = true
+        customer.markDirty('deleted')
+        customer.save(flush:true, failOnError:true)
     }
 
     private validateDelete(Customer customer) {
@@ -29,6 +31,8 @@ class CustomerService {
             throw new IllegalArgumentException("Customer not found or is not deleted")
         }
 
-        customer.restore()
+        customer.deleted = false
+        customer.markDirty('deleted')
+        customer.save(flush: true, failOnError: true)
     }
 }
