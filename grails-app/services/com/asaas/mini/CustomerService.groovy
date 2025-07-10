@@ -10,7 +10,7 @@ class CustomerService {
         Customer validateCustomer = validateSave(params)
 
         if (validateCustomer.hasErrors()) {
-            throw new ValidationException("Error creating customer", validateCustomer.errors)
+            throw new org.grails.datastore.mapping.validation.ValidationException("Error creating customer", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -29,14 +29,14 @@ class CustomerService {
     }
 
     private Customer validateSave(Map params) {
-        Customer customer = new Customer();
+        Customer customer = new Customer()
 
         if (Customer.findByCpfCnjp(params.cpfCnpj)) {
-            customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
         }
-        
+
         if (Customer.findByEmail(params.email)) {
-            customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
         }
 
         if (!params.name?.trim()) {
@@ -60,19 +60,16 @@ class CustomerService {
         }
 
         if (!params.cep?.trim()) {
-            customer.errors.rejectValue("address.cep", "address.cep.blank", "CEP cannot be empty")
-        } else if (!(params.cep ==~ /^\d{8}$/)) {
-            customer.errors.rejectValue("address.cep", "address.cep.invalid", "CEP must have 8 digits")
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
         }
 
         if (!params.city?.trim()) {
-            customer.errors.rejectValue("address.city", "address.city.blank", "City cannot be empty")
+            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
         }
 
         if (!params.state?.trim()) {
-            customer.errors.rejectValue("address.state", "address.state.blank", "State cannot be empty")
+            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
-
         return customer
     }
 
