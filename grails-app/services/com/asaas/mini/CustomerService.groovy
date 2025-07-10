@@ -1,7 +1,7 @@
 package com.asaas.mini
 
-import javax.transaction.Transactional
-import javax.xml.bind.ValidationException
+import grails.gorm.transactions.Transactional
+import org.grails.datastore.mapping.validation.ValidationException
 
 @Transactional
 class CustomerService {
