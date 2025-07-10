@@ -8,7 +8,7 @@ class BaseEntity {
     Boolean deleted = false
 
     static constraints = {
-        lastUpdate nullable: true
+        lastUpdated nullable: true
     }
 
     static mapping = {
