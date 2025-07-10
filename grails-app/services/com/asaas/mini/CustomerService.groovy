@@ -7,18 +7,10 @@ import org.grails.datastore.mapping.validation.ValidationException
 class CustomerService {
 
     public Customer save(Map params) {
-        Customer customerValues = validateCustomerParams(params)
+        Customer validateCustomer = validateSave(params)
 
-        if (customerValues.hasErrors()) {
-            throw new ValidationException("Error creating customer", customerValues.errors)
-        }
-        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
-            throw new ValidationException("Error creating customer", customerValues.errors)
-        }
-        if (Customer.findByEmail(params.email)) {
-            customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
-            throw new ValidationException("Error creating customer", customerValues.errors)
+        if (validateCustomer.hasErrors()) {
+            throw new ValidationException("Error creating customer", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -34,8 +26,51 @@ class CustomerService {
         customer.address = address
 
         return customer.save(flush: true, failOnError: true)
+    }
 
+    private Customer validateSave(Map params) {
+        Customer customer = new Customer()
 
+        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
+            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+        }
+
+        if (Customer.findByEmail(params.email)) {
+            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+        }
+
+        if (!params.name?.trim()) {
+            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+        } else if (params.name.length() > 255) {
+            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+        }
+
+        if (!params.email?.trim()) {
+            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+        } else if (params.email.length() > 255) {
+            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+        } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
+            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
+        }
+
+        if (!params.cpfCnpj?.trim()) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
+        }
+
+        if (!params.cep?.trim()) {
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+        }
+
+        if (!params.city?.trim()) {
+            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+        }
+
+        if (!params.state?.trim()) {
+            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+        }
+        return customer
     }
 
     public Customer update(Long id, Map params) {
@@ -49,21 +84,9 @@ class CustomerService {
             throw new IllegalArgumentException("Customer not found")
         }
 
-        Customer validateCustomer = validateCustomerParams(params)
+        Customer validatedCustomer = validateUpdate(id, params)
 
-        if (customer.hasErrors()) {
-            throw new ValidationException("Error updating customer", customer.errors)
-        }
-
-        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
-
-        if (existingCpfCnpj && existingCpfCnpj.id != customer.id) {
-            validatedCustomer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
-            throw new ValidationException("Error updating customer", validatedCustomer.errors)
-        }
-        Customer existingEmail = Customer.findByEmail(params.email)
-        if (existingEmail && existingEmail.id != customer.id) {
-            validatedCustomer.errors.rejectValue("email", "email.exists", "There is already a customer with this email")
+        if (validatedCustomer.hasErrors()) {
             throw new ValidationException("Error updating customer", validatedCustomer.errors)
         }
 
@@ -79,8 +102,20 @@ class CustomerService {
         return customer.save(flush: true, failOnError: true)
     }
 
-    private Customer validateCustomerParams(Map params) {
-        Customer customer = new Customer();
+    private Customer validateUpdate(Long id, Map params) {
+        Customer customer = new Customer()
+
+        Customer existingCustomer = Customer.get(id)
+
+        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
+        if (existingCpfCnpj && existingCpfCnpj.id != id) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
+        }
+
+        Customer existingEmail = Customer.findByEmail(params.email)
+        if (existingEmail && existingEmail.id != id) {
+            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+        }
 
         if (!params.name?.trim()) {
             customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
