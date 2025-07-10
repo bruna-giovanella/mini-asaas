@@ -148,7 +148,6 @@ class CustomerService {
         if (!params.state?.trim()) {
             customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
-
         return customer
     }
 
