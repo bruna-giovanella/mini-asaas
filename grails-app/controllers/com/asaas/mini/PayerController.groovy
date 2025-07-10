@@ -34,9 +34,21 @@ class PayerController {
         }
     }
 
+    def restore() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.id as Long
+            payerService.restore(id, customer)
+            render(status: 200)
+        } catch (IllegalArgumentException e) {
+            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
+        } catch (ValidationException e) {
+            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+        }
+    }
+
     private Customer getCustomerLogged() {
         return Customer.get(1L)
     }
-
 
 }

@@ -96,5 +96,16 @@ class PayerService {
         payer.markDirty('deleted')
         payer.save(failOnError:true)    }
 
+    public void restore(Long id, customer) {
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found or is not deleted")
+        }
+
+        payer.deleted = false
+        payer.markDirty('deleted')
+        payer.save(failOnError: true)
+    }
 
 }
