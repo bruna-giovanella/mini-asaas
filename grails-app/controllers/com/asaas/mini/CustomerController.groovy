@@ -18,6 +18,21 @@ class CustomerController {
         }
     }
 
+    def show() {
+        try {
+            Long id = params.id as Long
+            def customer = customerService.getCustomer(id)
+
+            if (!customer) {
+                render(status: 404, text: "Customer not found")
+                return
+            }
+            respond customer
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     def delete() {
         try {
             Long id = params.id as Long
