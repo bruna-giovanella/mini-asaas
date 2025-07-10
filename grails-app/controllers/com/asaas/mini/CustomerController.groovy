@@ -2,8 +2,6 @@ package com.asaas.mini
 
 import org.grails.datastore.mapping.validation.ValidationException
 
-import java.util.function.LongConsumer
-
 class CustomerController {
 
     static responseFormats = ['json']
@@ -21,7 +19,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.id as Long
-            def customer = customerService.getCustomer(id)
+            def customer = customerService.get(id)
 
             if (!customer) {
                 render(status: 404, text: "Customer not found")
@@ -36,7 +34,7 @@ class CustomerController {
     def update() {
         try {
             Long id = params.id as Long
-            def customer = customerService.updateCustomer(id, params)
+            def customer = customerService.update(id, params)
             respond customer, [status: 200]
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
@@ -50,7 +48,7 @@ class CustomerController {
     def delete() {
         try {
             Long id = params.id as Long
-            customerService.deleteCustomer(id)
+            customerService.delete(id)
             render(status: 204)
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
@@ -62,7 +60,7 @@ class CustomerController {
     def restore() {
         try {
             Long id = params.id as Long
-            customerService.restoreCustomer(id)
+            customerService.restore(id)
             render(status: 200)
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
