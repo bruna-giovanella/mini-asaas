@@ -7,18 +7,10 @@ import org.grails.datastore.mapping.validation.ValidationException
 class CustomerService {
 
     public Customer save(Map params) {
-        Customer customerValues = validateCustomerParams(params)
+        Customer validateCustomer = validateSave(params)
 
-        if (customerValues.hasErrors()) {
-            throw new ValidationException("Error creating customer", customerValues.errors)
-        }
-        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
-            throw new ValidationException("Error creating customer", customerValues.errors)
-        }
-        if (Customer.findByEmail(params.email)) {
-            customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
-            throw new ValidationException("Error creating customer", customerValues.errors)
+        if (validateCustomer.hasErrors()) {
+            throw new ValidationException("Error creating customer", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -34,11 +26,18 @@ class CustomerService {
         customer.address = address
 
         return customer.save(flush: true, failOnError: true)
-
     }
 
-    private Customer validateCustomerParams(Map params) {
+    private Customer validateSave(Map params) {
         Customer customer = new Customer();
+
+        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
+            customerValues.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+        }
+
+        if (Customer.findByEmail(params.email)) {
+            customerValues.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+        }
 
         if (!params.name?.trim()) {
             customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
