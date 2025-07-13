@@ -86,6 +86,19 @@ class PayerService {
         return payer
     }
 
+    public Payer get(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        return payer
+    }
+
+    public List<Payer> list(Customer customer) {
+        return Payer.findAllByCustomerAndDeleted(customer, false)
+    }
+
     public Payer update(Long id, Map params) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
@@ -176,15 +189,6 @@ class PayerService {
         if (!params.state?.trim()) {
             payer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
-
-        return payer
-    }
-
-    public Payer get(Long id, customer) {
-        if (!id) {
-            throw new IllegalArgumentException("ID is required")
-        }
-        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 
         return payer
     }

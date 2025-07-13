@@ -37,6 +37,16 @@ class PayerController {
         }
     }
 
+    def list() {
+        try {
+            Customer customer = getCustomerLogged()
+            List<Payer> payerList = payerService.list(customer)
+            respond payerList
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     def update() {
         try {
             Long id = params.id as Long
