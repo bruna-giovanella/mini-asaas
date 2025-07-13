@@ -31,7 +31,7 @@ class CustomerService {
     private Customer validateSave(Map params) {
         Customer customer = new Customer()
 
-        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
+        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
             customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
         }
 
@@ -144,6 +144,7 @@ class CustomerService {
         if (!params.city?.trim()) {
             customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
         }
+
 
         if (!params.state?.trim()) {
             customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")

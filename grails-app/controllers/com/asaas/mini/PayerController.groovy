@@ -25,13 +25,27 @@ class PayerController {
             Customer customer = getCustomerLogged()
             Long id = params.id as Long
 
-            def payer = payerService.get(id, customer)
+            Payer payer = payerService.get(id, customer)
 
             if (!payer) {
                 render(status: 404, text: "Payer not found")
                 return
             }
             respond payer
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
+    def update() {
+        try {
+            Long id = params.id as Long
+            Payer payer = payerService.update(id, params)
+            respond payer, [status: 200]
+        } catch (IllegalArgumentException e) {
+            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
+        } catch (ValidationException e) {
+            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
         } catch (Exception e) {
             render(status: 500, text: "Internal Server Error: ${e.message}")
         }

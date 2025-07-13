@@ -19,7 +19,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.id as Long
-            Customer customer = customerService.getCustomer(id)
+            Customer customer = customerService.get(id)
 
             if (!customer) {
                 render(status: 404, text: "Customer not found")
@@ -34,7 +34,7 @@ class CustomerController {
     def update() {
         try {
             Long id = params.id as Long
-            Customer customer = customerService.updateCustomer(id, params)
+            Customer customer = customerService.update(id, params)
             respond customer, [status: 200]
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
