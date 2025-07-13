@@ -151,13 +151,12 @@ class CustomerService {
         return customer
     }
 
-
     public Customer getCustomer(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
         Customer customer = Customer.findByIdAndDeleted(id, false)
-        return customer;
+        return customer
     }
 
     public void deleteCustomer(Long id) {
