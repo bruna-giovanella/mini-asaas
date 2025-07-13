@@ -73,7 +73,7 @@ class CustomerService {
         return customer
     }
 
-    public Customer updateCustomer(Long id, Map params) {
+    public Customer update(Long id, Map params) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
@@ -151,7 +151,7 @@ class CustomerService {
         return customer
     }
 
-    public Customer getCustomer(Long id) {
+    public Customer get(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
@@ -159,7 +159,7 @@ class CustomerService {
         return customer
     }
 
-    public void deleteCustomer(Long id) {
+    public void delete(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
@@ -177,7 +177,7 @@ class CustomerService {
         }
     }
 
-    public void restoreCustomer(Long id) {
+    public void restore(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
         if (!customer) {
