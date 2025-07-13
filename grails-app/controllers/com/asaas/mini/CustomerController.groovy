@@ -9,7 +9,7 @@ class CustomerController {
 
     def save() {
         try {
-            def customer = customerService.save(params)
+            Customer customer = customerService.save(params)
             respond customer, [status: 201]
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
