@@ -9,7 +9,7 @@ class CustomerController {
 
     def save() {
         try {
-            def customer = customerService.save(params)
+            Customer customer = customerService.save(params)
             respond customer, [status: 201]
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
@@ -19,7 +19,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.id as Long
-            def customer = customerService.get(id)
+            Customer customer = customerService.getCustomer(id)
 
             if (!customer) {
                 render(status: 404, text: "Customer not found")
@@ -34,7 +34,7 @@ class CustomerController {
     def update() {
         try {
             Long id = params.id as Long
-            def customer = customerService.update(id, params)
+            Customer customer = customerService.updateCustomer(id, params)
             respond customer, [status: 200]
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
