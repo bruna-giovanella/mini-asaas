@@ -31,7 +31,7 @@ class CustomerService {
     private Customer validateSave(Map params) {
         Customer customer = new Customer()
 
-        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
+        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
             customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
         }
 
@@ -145,6 +145,7 @@ class CustomerService {
             customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
         }
 
+
         if (!params.state?.trim()) {
             customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
@@ -165,17 +166,17 @@ class CustomerService {
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
         }
-        validateDelete(customer)
+//        validateDelete(customer)
         customer.deleted = true
         customer.markDirty('deleted')
         customer.save(failOnError:true)
     }
 
-    private validateDelete(Customer customer) {
-        if (Payment.findByCustomerAndDeleted(customer, false)) {
-            throw new IllegalArgumentException("Customer has active payments")
-        }
-    }
+//    private validateDelete(Customer customer) {
+//        if (Payment.findByCustomerAndDeleted(customer, false)) {
+//            throw new IllegalArgumentException("Customer has active payments")
+//        }
+//    }
 
     public void restore(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
