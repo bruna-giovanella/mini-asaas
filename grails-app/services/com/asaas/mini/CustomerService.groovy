@@ -10,7 +10,7 @@ class CustomerService {
         Customer validateCustomer = validateSave(params)
 
         if (validateCustomer.hasErrors()) {
-            throw new org.grails.datastore.mapping.validation.ValidationException("Error creating customer", validateCustomer.errors)
+            throw new ValidationException("Error creating customer", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -73,13 +73,89 @@ class CustomerService {
         return customer
     }
 
+    public Customer updateCustomer(Long id, Map params) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Customer customer = Customer.findByIdAndDeleted(id, false)
+
+        if (!customer) {
+            throw new IllegalArgumentException("Customer not found")
+        }
+
+        Customer validatedCustomer = validateUpdate(id, params)
+
+        if (validatedCustomer.hasErrors()) {
+            throw new ValidationException("Error updating customer", validatedCustomer.errors)
+        }
+
+        customer.name = params.name
+        customer.email = params.email
+        customer.cpfCnpj = params.cpfCnpj
+
+        customer.address.cep = params.cep
+        customer.address.city = params.city
+        customer.address.state = params.state
+        customer.address.complement = params.complement
+
+        return customer.save(flush: true, failOnError: true)
+    }
+
+    private Customer validateUpdate(Long id, Map params) {
+        Customer customer = new Customer()
+
+        Customer existingCustomer = Customer.get(id)
+
+        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
+        if (existingCpfCnpj && existingCpfCnpj.id != id) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
+        }
+
+        Customer existingEmail = Customer.findByEmail(params.email)
+        if (existingEmail && existingEmail.id != id) {
+            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+        }
+
+        if (!params.name?.trim()) {
+            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+        } else if (params.name.length() > 255) {
+            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+        }
+
+        if (!params.email?.trim()) {
+            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+        } else if (params.email.length() > 255) {
+            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+        } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
+            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
+        }
+
+        if (!params.cpfCnpj?.trim()) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
+        }
+
+        if (!params.cep?.trim()) {
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+        }
+
+        if (!params.city?.trim()) {
+            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+        }
+
+        if (!params.state?.trim()) {
+            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+        }
+        return customer
+    }
 
 
     public Customer getCustomer(Long id) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
-
         Customer customer = Customer.findByIdAndDeleted(id, false)
         return customer;
     }
@@ -90,7 +166,6 @@ class CustomerService {
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
         }
-
         validateDelete(customer)
         customer.deleted = true
         customer.markDirty('deleted')
