@@ -21,7 +21,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.id as Long
-            def customer = customerService.getCustomer(id)
+            Customer customer = customerService.getCustomer(id)
 
             if (!customer) {
                 render(status: 404, text: "Customer not found")
