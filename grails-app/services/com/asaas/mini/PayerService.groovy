@@ -33,6 +33,11 @@ class PayerService {
     private Payer validateSave(Map params, Customer customer) {
         Payer payer = new Payer()
 
+        if (!customer || customer.deleted) {
+            payer.errors.rejectValue("customer", "customer.deleted", "Customer is deleted and cannot have new payers")
+            return payer
+        }
+
         if (Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, customer)) {
             payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a payer with this CPF/CNPJ for this customer")
         }
@@ -117,6 +122,11 @@ class PayerService {
         Payer existingPayer = Payer.get(id)
         if (!existingPayer) {
             throw new IllegalArgumentException("Payer not found")
+        }
+
+        if (existingPayer.customer?.deleted) {
+            payer.errors.rejectValue("customer", "customer.deleted", "Cannot update payer because the customer is deleted")
+            return payer
         }
 
         Payer existingCpfCnpj = Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, existingPayer.customer)
