@@ -3,6 +3,7 @@ package com.asaas.mini
 import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
+
     static responseFormats = ['json']
     CustomerService customerService
 
