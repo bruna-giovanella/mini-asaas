@@ -15,4 +15,14 @@ class CustomerController {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
         }
     }
+
+    def delete() {
+        try {
+            Long id = params.id as Long
+            customerService.deleteCustomer(id)
+            render(status: 204)
+        } catch (ValidationException e) {
+            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+        }
+    }
 }
