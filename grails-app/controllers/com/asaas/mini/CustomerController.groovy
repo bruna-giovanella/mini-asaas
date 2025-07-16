@@ -18,7 +18,7 @@ class CustomerController {
 
     def delete() {
         try {
-            def customer = customerService.deleteCustomer(params.id)
+            Customer customer = customerService.deleteCustomer(params.id)
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
         }
