@@ -161,19 +161,47 @@ class CustomerService {
     }
 
     public void delete(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false)
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
 
+        Customer customer = Customer.findByIdAndDeleted(id, false)
         if (!customer) {
             throw new IllegalArgumentException("Customer not found")
         }
+
         validateDelete(customer)
+
+        List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
+        payers.each { payer ->
+            payer.deleted = true
+            payer.markDirty('deleted')
+            payer.save(failOnError: true)
+
+            List<Payment> payments = Payment.findAllByPayerAndDeleted(payer, false)
+            payments.each { payment ->
+                payment.status = PaymentStatus.EXCLUIDA
+                payment.deleted = true
+                payment.markDirty('deleted')
+                payment.save(failOnError: true)
+            }
+        }
+
         customer.deleted = true
         customer.markDirty('deleted')
         customer.save(failOnError:true)
     }
 
     private validateDelete(Customer customer) {
-        if (Payment.findByCustomerAndDeleted(customer, false)) {
+        Payment hasActivePayments = Payment.createCriteria().get {
+            eq("deleted", false)
+            eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (hasActivePayments) {
             throw new IllegalArgumentException("Customer has active payments")
         }
     }
