@@ -60,7 +60,22 @@ class PaymentController {
         }
     }
 
+    def delete() {
+        try {
+            Customer customer = getCustomerLogged()
+            Payment deletedPayment = paymentService.delete(params.long('id'), customer)
+            render(status: 204)
+
+        } catch (IllegalArgumentException e) {
+            render(status: 400, text: e.message)
+        } catch (ValidationException e) {
+            render(status: 422, text: e.message)
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     private Customer getCustomerLogged() {
-        return Customer.get(1L)
+        return Customer.get(2L)
     }
 }
