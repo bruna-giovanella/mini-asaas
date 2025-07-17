@@ -50,6 +50,16 @@ class PaymentController {
         }
     }
 
+    def list() {
+        try {
+            Customer customer = getCustomerLogged()
+            List<Payment> paymentList = paymentService.list(customer)
+            respond paymentList
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     private Customer getCustomerLogged() {
         return Customer.get(1L)
     }
