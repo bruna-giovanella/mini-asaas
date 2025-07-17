@@ -83,6 +83,63 @@ class PaymentService {
         }
     }
 
+    public Payment update(Long id, Map params, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (!payment) {
+            throw new IllegalArgumentException("Payment not found")
+        }
+
+        validateUpdate(payment, params)
+
+        payment.value = new BigDecimal(params.value)
+        payment.type = PaymentType.valueOf(params.type.toUpperCase())
+        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
+
+        return payment.save(flush: true, failOnError: true)
+    }
+
+    private void validateUpdate(Payment payment, Map params) {
+        if (payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
+            payment.errors.rejectValue("status", "status.invalid", "Only pending payments can be updated")
+        }
+
+        try {
+            BigDecimal value = new BigDecimal(params.value)
+            if (value <= 0) {
+                payment.errors.rejectValue("value", "value.invalid", "Value must be positive")
+            }
+        } catch (Exception e) {
+            payment.errors.rejectValue("value", "value.invalid", "Invalid value")
+        }
+
+        try {
+            PaymentType.valueOf(params.type.toUpperCase())
+        } catch (Exception e) {
+            payment.errors.rejectValue("type", "type.invalid", "Invalid payment type")
+        }
+
+        try {
+            LocalDate.parse(params.dueDate, DATE_FORMATTER)
+        } catch (DateTimeParseException e) {
+            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Invalid due date format. Expected format: dd/MM/yyyy")
+        }
+
+        if (payment.hasErrors()) {
+            throw new ValidationException("Error updating payment", payment.errors)
+        }
+    }
+
     public void delete(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)

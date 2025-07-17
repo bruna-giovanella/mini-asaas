@@ -60,6 +60,20 @@ class PaymentController {
         }
     }
 
+    def update() {
+        try {
+            Customer customer = getCustomerLogged()
+            Payment updatedPayment = paymentService.update(params.long('id'), params, customer)
+            respond updatedPayment, [status: 200]
+        } catch (IllegalArgumentException e) {
+            render status: 400, text: e.message
+        } catch (ValidationException e) {
+            render status: 422, text: e.message
+        } catch (Exception e) {
+            render status: 500, text: "Internal Server Error: ${e.message}"
+        }
+    }
+
     def delete() {
         try {
             Customer customer = getCustomerLogged()
