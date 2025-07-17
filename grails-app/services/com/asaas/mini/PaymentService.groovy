@@ -104,4 +104,31 @@ class PaymentService {
         payment.deleted = true
         payment.save(failOnError: true)
     }
+
+    public void restore(Long id, Customer customer) {
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", true)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (!payment) {
+            throw new IllegalArgumentException("Payment not found for this customer")
+        }
+
+        if (payment.status != PaymentStatus.EXCLUIDA) {
+            throw new ValidationException("Only deleted payments can be restored", payment.errors)
+        }
+
+        if (payment.dueDate.isBefore(LocalDate.now())) {
+            payment.status = PaymentStatus.VENCIDA
+        } else {
+            payment.status = PaymentStatus.AGUARDANDO_PAGAMENTO
+        }
+
+        payment.deleted = false
+        payment.save(failOnError: true)
+    }
 }
