@@ -1,6 +1,7 @@
 package com.asaas.mini
 
 import com.asaas.mini.enums.PaymentType
+import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import java.time.LocalDate
@@ -80,5 +81,26 @@ class PaymentService {
                 eq("customer", customer)
             }
         }
+    }
+
+    Payment delete(Long id, Customer customer) {
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (payment.status in [PaymentStatus.RECEBIDA, PaymentStatus.EXCLUIDA]) {
+            throw new ValidationException("Cannot delete payment with status ${payment.status}", payment.errors)
+        }
+
+        payment.status = PaymentStatus.EXCLUIDA
+        payment.deleted = true
+        payment.markDirty('deleted')
+        payment.save(failOnError:true)
+
+        return payment
     }
 }

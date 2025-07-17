@@ -206,7 +206,8 @@ class PayerService {
 
         payer.deleted = true
         payer.markDirty('deleted')
-        payer.save(failOnError:true)    }
+        payer.save(failOnError:true)
+    }
 
     public void restore(Long id, customer) {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
