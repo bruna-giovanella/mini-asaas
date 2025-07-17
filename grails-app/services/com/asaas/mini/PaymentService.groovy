@@ -83,7 +83,7 @@ class PaymentService {
         }
     }
 
-    Payment delete(Long id, Customer customer) {
+    public void delete(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)
             eq("deleted", false)
@@ -92,15 +92,16 @@ class PaymentService {
             }
         }
 
+        if (!payment) {
+            throw new IllegalArgumentException("Payment not found for this customer")
+        }
+
         if (payment.status in [PaymentStatus.RECEBIDA, PaymentStatus.EXCLUIDA]) {
             throw new ValidationException("Cannot delete payment with status ${payment.status}", payment.errors)
         }
 
         payment.status = PaymentStatus.EXCLUIDA
         payment.deleted = true
-        payment.markDirty('deleted')
-        payment.save(failOnError:true)
-
-        return payment
+        payment.save(failOnError: true)
     }
 }

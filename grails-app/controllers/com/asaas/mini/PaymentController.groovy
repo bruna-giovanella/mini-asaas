@@ -64,7 +64,8 @@ class PaymentController {
         try {
             Customer customer = getCustomerLogged()
             Payment deletedPayment = paymentService.delete(params.long('id'), customer)
-            respond deletedPayment, [status: 200]
+            render(status: 204)
+
         } catch (IllegalArgumentException e) {
             render(status: 400, text: e.message)
         } catch (ValidationException e) {
@@ -75,6 +76,6 @@ class PaymentController {
     }
 
     private Customer getCustomerLogged() {
-        return Customer.get(1L)
+        return Customer.get(2L)
     }
 }
