@@ -20,6 +20,8 @@ class Payment extends BaseEntity {
 
     boolean confirmedInCash = false
 
+    static belongsTo = [payer: Payer]
+
     static constraints = {
         payer nullable: false
         value nullable: false, min: new BigDecimal("0.01")

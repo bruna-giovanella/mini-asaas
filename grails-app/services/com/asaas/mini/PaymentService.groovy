@@ -58,4 +58,18 @@ class PaymentService {
 
         return payment
     }
+
+    public Payment get(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Payment.findByIdAndDeleted(id, false)?.with { payment ->
+            if (payment.payer.customer.id == customer.id) {
+                return payment
+            } else {
+                throw new IllegalArgumentException("Payment not found")
+            }
+        }
+    }
 }
