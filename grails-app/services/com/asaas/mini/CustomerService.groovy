@@ -2,6 +2,8 @@ package com.asaas.mini
 
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
+import com.asaas.mini.enums.PaymentStatus
+
 
 @Transactional
 class CustomerService {
@@ -193,15 +195,16 @@ class CustomerService {
     }
 
     private validateDelete(Customer customer) {
-        Payment hasActivePayments = Payment.createCriteria().get {
+        List<Payment> activePayments = Payment.createCriteria().list {
             eq("deleted", false)
             eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
             payer {
                 eq("customer", customer)
+                eq("deleted", false)
             }
         }
 
-        if (hasActivePayments) {
+        if (activePayments) {
             throw new IllegalArgumentException("Customer has active payments")
         }
     }
