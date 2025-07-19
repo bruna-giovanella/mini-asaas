@@ -104,6 +104,18 @@ class PaymentController {
         }
     }
 
+    def confirmInCash() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.long('id')
+
+            Payment payment = paymentService.confirmInCash(id, customer)
+            respond payment, [status: 200]
+        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
+            render status: 400, text: e.message
+        }
+    }
+
     private Customer getCustomerLogged() {
         return Customer.get(1L)
     }

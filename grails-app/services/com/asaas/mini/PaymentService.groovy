@@ -188,4 +188,29 @@ class PaymentService {
         payment.deleted = false
         payment.save(failOnError: true)
     }
+
+    public Payment confirmInCash(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("Payment ID is required")
+        }
+
+        Payment payment = Payment.findById(id)
+        if (!payment || payment.status == PaymentStatus.EXCLUIDA) {
+            throw new IllegalArgumentException("Payment not found")
+        }
+
+        if (payment.payer.customer.id != customer.id) {
+            throw new SecurityException("Access denied: Payment does not belong to the logged customer")
+        }
+
+        if (payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
+            throw new IllegalStateException("Only payments with status 'Aguardando Pagamento' can be confirmed in cash")
+        }
+
+        payment.status = PaymentStatus.RECEBIDA
+        payment.confirmedInCash = true
+        payment.save(flush: true)
+
+        return payment
+    }
 }
