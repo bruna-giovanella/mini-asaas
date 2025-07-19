@@ -11,9 +11,7 @@ import java.time.format.DateTimeParseException
 @Transactional
 class PaymentService {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-    Payment save(Map params, Payer payer) {
+    public Payment save(Map params, Payer payer) {
         Payment payment = validateSave(params, payer)
 
         if (payment.hasErrors()) {
@@ -22,10 +20,20 @@ class PaymentService {
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
         payment.payer = payer
 
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
+
         payment.save(flush: true, failOnError: true)
+        return payment
     }
 
     private Payment validateSave(Map params, Payer payer) {
@@ -49,12 +57,6 @@ class PaymentService {
             PaymentType.valueOf(params.type.toUpperCase())
         } catch (Exception e) {
             payment.errors.rejectValue("type", "type.invalid", "Invalid payment type")
-        }
-
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException e) {
-            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Invalid due date format. Expected format: dd/MM/yyyy")
         }
 
         return payment
@@ -104,7 +106,16 @@ class PaymentService {
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
+
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
 
         return payment.save(flush: true, failOnError: true)
     }
@@ -127,12 +138,6 @@ class PaymentService {
             PaymentType.valueOf(params.type.toUpperCase())
         } catch (Exception e) {
             payment.errors.rejectValue("type", "type.invalid", "Invalid payment type")
-        }
-
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException e) {
-            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Invalid due date format. Expected format: dd/MM/yyyy")
         }
 
         if (payment.hasErrors()) {
@@ -212,5 +217,20 @@ class PaymentService {
         payment.save(flush: true)
 
         return payment
+    }
+
+    public void markOverduePayments() {
+        LocalDate today = LocalDate.now()
+
+        List<Payment> paymentsToMarkOverdue = Payment.where {
+            status == PaymentStatus.AGUARDANDO_PAGAMENTO &&
+                    dueDate < today &&
+                    deleted == false
+        }.list()
+
+        paymentsToMarkOverdue.each { payment ->
+            payment.status = PaymentStatus.VENCIDA
+            payment.save(flush: true)
+        }
     }
 }
