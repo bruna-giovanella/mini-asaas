@@ -1,10 +1,15 @@
 package com.asaas.mini
 
+import com.asaas.mini.utils.SecurityUtils
 import org.grails.datastore.mapping.validation.ValidationException
+import grails.plugin.springsecurity.annotation.Secured
 
+@Secured(['ROLE_USER'])
 class PayerController {
 
     static responseFormats = ['json']
+
+    SecurityUtils securityUtils
     PayerService payerService
 
     def save() {
@@ -89,7 +94,6 @@ class PayerController {
     }
 
     private Customer getCustomerLogged() {
-        return Customer.get(1L)
+        return securityUtils.getCustomerLogged()
     }
-
 }

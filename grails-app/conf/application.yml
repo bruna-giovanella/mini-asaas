@@ -154,3 +154,27 @@ grails:
             autoStartup: true
             waitForJobsToCompleteOnShutdown: true
             jdbcStore: false
+
+---
+grails:
+    plugin:
+        springsecurity:
+            userLookup:
+                userDomainClassName: 'com.asaas.mini.User'
+                authorityJoinClassName: 'com.asaas.mini.UserRole'
+            authority:
+                className: 'com.asaas.mini.Role'
+            password:
+                algorithm: bcrypt
+            controllerAnnotations:
+                staticRules:
+                    - pattern: '/'
+                      access: ['permitAll']
+                    - pattern: '/login'
+                      access: ['permitAll']
+                    - pattern: '/logout'
+                      access: ['permitAll']
+                    - pattern: '/assets/**'
+                      access: ['permitAll']
+                    - pattern: '/**'
+                      access: ['isAuthenticated()']

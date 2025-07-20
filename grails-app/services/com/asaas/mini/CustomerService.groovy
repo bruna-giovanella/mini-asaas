@@ -38,7 +38,7 @@ class CustomerService {
         }
 
         if (Customer.findByEmail(params.email)) {
-            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+            customer.errors.rejectValue("email", "email.exists", "There is already a customer with this email")
         }
 
         if (!params.name?.trim()) {

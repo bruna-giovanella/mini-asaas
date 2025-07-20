@@ -1,7 +1,9 @@
 package com.asaas.mini
 
 import org.grails.datastore.mapping.validation.ValidationException
+import grails.plugin.springsecurity.annotation.Secured
 
+@Secured(['ROLE_USER'])
 class CustomerController {
 
     static responseFormats = ['json']
