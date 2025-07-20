@@ -1,14 +1,15 @@
 package mini.asaas
 
+import com.asaas.mini.PaymentService
 import grails.gorm.transactions.Transactional
 
 class UpdateOverduePaymentsJob {
 
     static triggers = {
-        cron name: 'overduePaymentTrigger', cronExpression: "0 15 1 * * ?"
+        cron name: 'overduePaymentTrigger', cronExpression: "0 45 11 * * ?"
     }
 
-    def paymentService
+    PaymentService paymentService
 
     @Transactional
     def execute() {
