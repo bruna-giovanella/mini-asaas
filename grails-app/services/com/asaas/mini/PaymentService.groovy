@@ -9,6 +9,8 @@ import java.time.LocalDate
 @Transactional
 class PaymentService {
 
+    EmailService emailService
+
     public Payment save(Map params, Payer payer) {
         Payment payment = validateSave(params, payer)
 
@@ -31,6 +33,7 @@ class PaymentService {
         }
 
         payment.save(flush: true, failOnError: true)
+        emailService.sendPaymentCreatedNotification(payment)
         return payment
     }
 
@@ -115,7 +118,9 @@ class PaymentService {
                 break
         }
 
-        return payment.save(flush: true, failOnError: true)
+        payment.save(flush: true, failOnError: true)
+        emailService.sendPaymentCreatedNotification(payment)
+        return payment
     }
 
     private void validateUpdate(Payment payment, Map params) {
@@ -143,7 +148,7 @@ class PaymentService {
         }
     }
 
-    public void delete(Long id, Customer customer) {
+    public Payment delete(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)
             eq("deleted", false)
@@ -163,9 +168,12 @@ class PaymentService {
         payment.status = PaymentStatus.EXCLUIDA
         payment.deleted = true
         payment.save(failOnError: true)
+
+        emailService.sendPaymentDeletedNotification(payment)
+        return payment
     }
 
-    public void restore(Long id, Customer customer) {
+    public Payment restore(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)
             eq("deleted", true)
@@ -190,6 +198,9 @@ class PaymentService {
 
         payment.deleted = false
         payment.save(failOnError: true)
+
+        emailService.sendPaymentCreatedNotification(payment)
+        return payment
     }
 
     public Payment confirmInCash(Long id, Customer customer) {
@@ -214,6 +225,7 @@ class PaymentService {
         payment.confirmedInCash = true
         payment.save(flush: true)
 
+        emailService.sendPaymentPaidNotification(payment)
         return payment
     }
 
@@ -229,6 +241,7 @@ class PaymentService {
         paymentsToMarkOverdue.each { payment ->
             payment.status = PaymentStatus.VENCIDA
             payment.save(flush: true)
+            emailService.sendPaymentExpiredNotification(payment)
         }
     }
 }
