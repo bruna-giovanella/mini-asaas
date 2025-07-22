@@ -19,7 +19,7 @@ class CustomerController {
     }
 
     def show() {
-        try {
+        try {z
             Long id = params.id as Long
             Customer customer = customerService.get(id)
 

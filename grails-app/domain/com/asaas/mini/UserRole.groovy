@@ -1,5 +1,7 @@
 package com.asaas.mini
 
+import com.asaas.mini.enums.Role
+
 class UserRole implements Serializable{
 
     User user
@@ -14,5 +16,6 @@ class UserRole implements Serializable{
     static mapping = {
         id composite: ['user', 'role']
         version false
+        role enumType: "string"
     }
 }

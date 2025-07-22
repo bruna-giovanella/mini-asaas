@@ -17,7 +17,6 @@ class EmailService {
             margin: 0;
             padding: 0;
         }
-
         .container {
             max-width: 600px;
             margin: 40px auto;
@@ -27,7 +26,6 @@ class EmailService {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
             color: #333333;
         }
-
         h1 {
             color: #2b2d42;
             font-size: 24px;
@@ -35,19 +33,16 @@ class EmailService {
             border-bottom: 2px solid #edf2f7;
             padding-bottom: 10px;
         }
-
         p {
             font-size: 16px;
             color: #4a4a4a;
             line-height: 1.6;
             margin-bottom: 16px;
         }
-
         .highlight {
             color: #0077cc;
             font-weight: 600;
         }
-
         .footer {
             margin-top: 40px;
             font-size: 13px;
@@ -56,18 +51,15 @@ class EmailService {
             padding-top: 20px;
             text-align: center;
         }
-
         .signature {
             margin-top: 30px;
             font-size: 15px;
             color: #6b7280;
         }
-
         a {
             color: #0077cc;
             text-decoration: none;
         }
-
         a:hover {
             text-decoration: underline;
         }

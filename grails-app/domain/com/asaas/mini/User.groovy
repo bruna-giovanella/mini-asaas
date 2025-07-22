@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import com.asaas.mini.enums.Role
 import com.asaas.mini.utils.BaseEntity
 
 class User extends BaseEntity{
@@ -18,7 +19,7 @@ class User extends BaseEntity{
 
     Customer customer
 
-    static transients = ['authorities']
+    Set<Role> roles = []
 
     static constraints = {
         email blank: false, unique: true, email: true
@@ -26,7 +27,7 @@ class User extends BaseEntity{
         customer nullable: false
     }
 
-    Set<Role> getAuthorities() {
-        UserRole.findAllByUser(this)*.role
+    static mapping = {
+        roles joinTable: [name: "user_roles", key: 'user_id', column: 'role']
     }
 }
