@@ -4,7 +4,6 @@ import com.asaas.mini.utils.SecurityUtils
 import org.grails.datastore.mapping.validation.ValidationException
 import grails.plugin.springsecurity.annotation.Secured
 
-@Secured(['ROLE_USER'])
 class PayerController {
 
     static responseFormats = ['json']
@@ -12,6 +11,7 @@ class PayerController {
     SecurityUtils securityUtils
     PayerService payerService
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def save() {
         try {
             Customer customer = getCustomerLogged()
@@ -25,6 +25,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         try {
             Customer customer = getCustomerLogged()
@@ -42,6 +43,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def list() {
         try {
             Customer customer = getCustomerLogged()
@@ -52,6 +54,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def update() {
         try {
             Long id = params.id as Long
@@ -66,6 +69,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def delete() {
         try {
             Customer customer = getCustomerLogged()
@@ -80,6 +84,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def restore() {
         try {
             Customer customer = getCustomerLogged()
