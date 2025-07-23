@@ -19,15 +19,9 @@ class User extends BaseEntity{
 
     Customer customer
 
-    Set<Role> roles = []
-
     static constraints = {
-        email blank: false, unique: true, email: true
+        email blank: false, email: true
         password blank: false
         customer nullable: false
-    }
-
-    static mapping = {
-        roles joinTable: [name: "user_roles", key: 'user_id', column: 'role']
     }
 }

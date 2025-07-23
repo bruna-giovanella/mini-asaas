@@ -1,12 +1,15 @@
 package com.asaas.mini
 
+import com.asaas.mini.enums.Role
 import grails.gorm.transactions.Transactional
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.access.AccessDeniedException
 import org.grails.datastore.mapping.validation.ValidationException
-import com.asaas.mini.enums.PaymentStatus
-
 
 @Transactional
 class CustomerService {
+
+    PasswordEncoder passwordEncoder
 
     public Customer save(Map params) {
         Customer validateCustomer = validateSave(params)
@@ -27,7 +30,11 @@ class CustomerService {
         customer.cpfCnpj = params.cpfCnpj
         customer.address = address
 
-        return customer.save(flush: true, failOnError: true)
+        customer.save(flush: true, failOnError: true)
+
+        createFirstUser(customer, params)
+
+        return customer
     }
 
     private Customer validateSave(Map params) {
@@ -75,7 +82,30 @@ class CustomerService {
         return customer
     }
 
-    public Customer update(Long id, Map params) {
+    private void createFirstUser(Customer customer, Map userParams) {
+        String email = userParams.emailUsuario
+        String password = userParams.password
+
+        if (!email || !password) {
+            throw new ValidationException("Email e senha do usuário administrador são obrigatórios", null)
+        }
+
+        User user = new User(
+                email: email,
+                password: passwordEncoder.encode(password),
+                customer: customer
+        )
+
+        if (!user.validate()) {
+            throw new ValidationException("Erro ao validar o usuário administrador", user.errors)
+        }
+
+        user.save(flush: true)
+
+        new UserRole(user: user, role: Role.ROLE_ADMINISTRADOR).save(flush: true)
+    }
+
+        public Customer update(Long id, Map params) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
