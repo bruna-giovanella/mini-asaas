@@ -30,19 +30,57 @@ class PayerService {
         return payer.save(flush: true, failOnError: true)
     }
 
-    private Payer validateSave(Map params, Customer customer) {
+    public Payer update(Long id, Map params) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+
+        Payer payer = Payer.findByIdAndDeleted(id, false)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado")
+        }
+
+        Payer validatedPayer = validateParams(params, payer.customer, id)
+
+        if (validatedPayer.hasErrors()) {
+            throw new ValidationException("Erro ao atualizar pagador", validatedPayer.errors)
+        }
+
+        payer.name = params.name
+        payer.email = params.email
+        payer.contactNumber = params.contactNumber
+        payer.cpfCnpj = params.cpfCnpj
+
+        payer.address.cep = params.cep
+        payer.address.city = params.city
+        payer.address.state = params.state
+        payer.address.complement = params.complement
+
+        return payer.save(flush: true, failOnError: true)
+    }
+
+    private Payer validateParams(Map params, Customer customer, Long id = null) {
         Payer payer = new Payer()
 
         if (!customer || customer.deleted) {
-            payer.errors.rejectValue("customer", "customer.deleted", "O cliente está excluído e não pode ter novos pagadores")
+            payer.errors.rejectValue("customer", "customer.deleted", "O cliente está excluído e não pode ter pagadores")
             return payer
         }
 
-        if (Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, customer)) {
+        Payer existingCpfCnpj = Payer.where {
+            cpfCnpj == params.cpfCnpj && customer == customer && (id == null || this.id != id)
+        }.get()
+
+        if (existingCpfCnpj) {
             payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ para este cliente")
         }
 
-        if (Payer.findByEmailAndCustomer(params.email, customer)) {
+        Payer existingEmail = Payer.where {
+            email == params.email && customer == customer && (id == null || this.id != id)
+        }.get()
+
+        if (existingEmail) {
             payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail para este cliente")
         }
 
@@ -75,104 +113,9 @@ class PayerService {
         if (!params.cep?.trim()) {
             payer.errors.rejectValue("address", "address.cep.blank", "O CEP é obrigatório")
         }
-
         if (!params.city?.trim()) {
             payer.errors.rejectValue("address", "address.city.blank", "A cidade é obrigatória")
         }
-
-        if (!params.state?.trim()) {
-            payer.errors.rejectValue("address", "address.state.blank", "O estado é obrigatório")
-        }
-        return payer
-    }
-
-    public Payer update(Long id, Map params) {
-        if (!id) {
-            throw new IllegalArgumentException("O ID é obrigatório")
-        }
-
-        Payer payer = Payer.findByIdAndDeleted(id, false)
-
-        if (!payer) {
-            throw new IllegalArgumentException("Pagador não encontrado")
-        }
-
-        Payer validatedPayer = validateUpdate(id, params)
-
-        if (validatedPayer.hasErrors()) {
-            throw new ValidationException("Erro ao atualizar pagador", validatedPayer.errors)
-        }
-
-        payer.name = params.name
-        payer.email = params.email
-        payer.contactNumber = params.contactNumber
-        payer.cpfCnpj = params.cpfCnpj
-
-        payer.address.cep = params.cep
-        payer.address.city = params.city
-        payer.address.state = params.state
-        payer.address.complement = params.complement
-
-        return payer.save(flush: true, failOnError: true)
-    }
-
-    private Payer validateUpdate(Long id, Map params) {
-        Payer payer = new Payer()
-
-        Payer existingPayer = Payer.get(id)
-        if (!existingPayer) {
-            throw new IllegalArgumentException("Pagador não encontrado")
-        }
-
-        if (existingPayer.customer?.deleted) {
-            payer.errors.rejectValue("customer", "customer.deleted", "Não é possível atualizar o pagador porque o cliente está excluído")
-            return payer
-        }
-
-        Payer existingCpfCnpj = Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, existingPayer.customer)
-        if (existingCpfCnpj && existingCpfCnpj.id != id) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com esse CPF/CNPJ para este cliente")
-        }
-
-        Payer existingEmail = Payer.findByEmailAndCustomer(params.email, existingPayer.customer)
-        if (existingEmail && existingEmail.id != id) {
-            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com esse e-mail para este cliente")
-        }
-
-        if (!params.name?.trim()) {
-            payer.errors.rejectValue("name", "name.blank", "O nome é obrigatório")
-        } else if (params.name.length() > 255) {
-            payer.errors.rejectValue("name", "name.maxSize", "O nome deve ter no máximo 255 caracteres")
-        }
-
-        if (!params.email?.trim()) {
-            payer.errors.rejectValue("email", "email.blank", "O e-mail é obrigatório")
-        } else if (params.email.length() > 255) {
-            payer.errors.rejectValue("email", "email.maxSize", "O e-mail deve ter no máximo 255 caracteres")
-        } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            payer.errors.rejectValue("email", "email.invalid", "E-mail inválido")
-        }
-
-        if (!params.contactNumber?.trim()) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.blank", "O número de contato é obrigatório")
-        } else if (!(params.contactNumber ==~ /^(1[1-9]|2[12478]|3[1234578]|4[12345789]|5[1345]|6[1]|7[134579]|8[1-9]|9[1-9])\d{8,9}$/)) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.invalidFormat", "Número de contato inválido")
-        }
-
-        if (!params.cpfCnpj?.trim()) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "O CPF/CNPJ é obrigatório")
-        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
-        }
-
-        if (!params.cep?.trim()) {
-            payer.errors.rejectValue("address", "address.cep.blank", "O CEP é obrigatório")
-        }
-
-        if (!params.city?.trim()) {
-            payer.errors.rejectValue("address", "address.city.blank", "A cidade é obrigatória")
-        }
-
         if (!params.state?.trim()) {
             payer.errors.rejectValue("address", "address.state.blank", "O estado é obrigatório")
         }

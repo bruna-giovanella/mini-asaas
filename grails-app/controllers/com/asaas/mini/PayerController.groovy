@@ -43,11 +43,11 @@ class PayerController {
             Payer payer = payerService.update(id, params)
             respond(payer, [status: 200])
 
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
-        } catch (Exception e) {
+        } catch (Exception exception) {
             render(status: 500, text: "Internal Server Error: ${e.message}")
         }
     }
