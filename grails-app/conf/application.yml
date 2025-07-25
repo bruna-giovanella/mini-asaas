@@ -162,19 +162,21 @@ grails:
             userLookup:
                 userDomainClassName: 'com.asaas.mini.User'
                 authorityJoinClassName: 'com.asaas.mini.UserRole'
-            authority:
-                className: 'com.asaas.mini.Role'
-            password:
-                algorithm: bcrypt
-            controllerAnnotations:
-                staticRules:
-                    - pattern: '/'
-                      access: ['permitAll']
-                    - pattern: '/login'
-                      access: ['permitAll']
-                    - pattern: '/logout'
-                      access: ['permitAll']
-                    - pattern: '/assets/**'
-                      access: ['permitAll']
+                authorityClassName: 'com.asaas.mini.Role'
+            rest:
+                login:
+                    endpointUrl: '/api/login'
+                    failureStatusCode: 401
+                token:
+                    validation:
+                        enableAnonymousAccess: true
+                    storage:
+                        jwt:
+                            secret: ${JWT_SECRET}
+                            expiration: 10800
+            filterChain:
+                chainMap:
+                    - pattern: '/api/**'
+                      filters: 'JOINED_FILTERS,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter'
                     - pattern: '/**'
-                      access: ['isAuthenticated()']
+                      filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
