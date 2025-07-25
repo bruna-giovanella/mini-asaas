@@ -22,7 +22,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.long("id")
-            Customer customer = customerService.getCustomer(id)
+            Customer customer = customerService.get(id)
 
             if (!customer) {
                 render(status: 404, text: "Cliente não encontrado")
@@ -38,7 +38,7 @@ class CustomerController {
     def update() {
         try {
             Long id = params.long("id")
-            Customer customer = customerService.updateCustomer(id, params)
+            Customer customer = customerService.update(id, params)
             respond(customer, [status: 200])
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -53,7 +53,7 @@ class CustomerController {
     def delete() {
         try {
             Long id = params.long("id")
-            customerService.deleteCustomer(id)
+            customerService.delete(id)
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -68,7 +68,7 @@ class CustomerController {
     def restore() {
         try {
             Long id = params.long("id")
-            customerService.restoreCustomer(id)
+            customerService.restore(id)
             render(status: 200)
 
         } catch (IllegalArgumentException illegalArgumentException) {
