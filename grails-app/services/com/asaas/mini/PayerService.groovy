@@ -100,8 +100,8 @@ class PayerService {
     public void restore(Long id, customer) {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
 
-        if (!customer) {
-            throw new IllegalArgumentException("Customer not found or is not deleted")
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado para este cliente ou está ativo")
         }
 
         payer.deleted = false
