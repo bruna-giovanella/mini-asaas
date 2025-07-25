@@ -42,8 +42,9 @@ class PayerController {
             Customer customer = getCustomerLogged()
             List<Payer> payerList = payerService.list(customer)
             respond payerList
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
@@ -54,11 +55,11 @@ class PayerController {
             respond(payer, [status: 200])
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
