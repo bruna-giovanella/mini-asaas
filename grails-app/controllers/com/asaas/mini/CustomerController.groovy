@@ -35,7 +35,7 @@ class CustomerController {
 
     def update() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             Customer customer = customerService.updateCustomer(id, params)
             respond customer, [status: 200]
         } catch (IllegalArgumentException e) {
