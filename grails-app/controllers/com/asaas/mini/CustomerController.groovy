@@ -10,62 +10,73 @@ class CustomerController {
     def save() {
         try {
             Customer customer = customerService.save(params)
-            respond customer, [status: 201]
-        } catch (ValidationException e) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+            respond(customer, [status: 201])
+
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
     def show() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             Customer customer = customerService.get(id)
 
             if (!customer) {
-                render(status: 404, text: "Customer not found")
+                render(status: 404, text: "Cliente não encontrado")
                 return
             }
             respond customer
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
     def update() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             Customer customer = customerService.update(id, params)
-            respond customer, [status: 200]
-        } catch (IllegalArgumentException e) {
+            respond(customer, [status: 200])
+
+        } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
-        } catch (Exception e) {
+        } catch (Exception exception) {
             render(status: 500, text: "Internal Server Error: ${e.message}")
         }
     }
 
     def delete() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             customerService.delete(id)
             render(status: 204)
-        } catch (IllegalArgumentException e) {
-            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
-        } catch (ValidationException e) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+        render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
     def restore() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             customerService.restore(id)
             render(status: 200)
-        } catch (IllegalArgumentException e) {
-            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
-        } catch (ValidationException e) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 }
