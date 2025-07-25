@@ -13,23 +13,24 @@ class PaymentController {
 
         Long payerId = params.long('payerId')
         if (!payerId) {
-            render(status: 400, contentType: 'application/json', text: [errors: ["Payer ID is required"]])
+            render(status: 400, contentType: 'application/json', text: [errors: ["ID do pagamento é obrigatório"]])
             return
         }
 
         Payer payer = Payer.findByIdAndCustomerAndDeleted(payerId, customer, false)
         if (!payer) {
-            render(status: 400, contentType: 'application/json', text: [errors: ["Payer not found or does not belong to the logged-in customer"]])
+            render(status: 400, contentType: 'application/json', text: [errors: ["Pagador não encontrado"]])
             return
         }
 
         try {
             Payment payment = paymentService.save(params, payer)
-            respond payment, [status: 201]
-        } catch (ValidationException e) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage])
-        } catch (Exception e) {
-            render(status: 500, contentType: 'application/json', text: [errors: ["Internal Server Error: ${e.message}"]])
+            respond(payment, [status: 201])
+
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
