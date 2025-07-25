@@ -13,7 +13,7 @@ class CustomerController {
             respond customer, [status: 201]
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
@@ -27,7 +27,7 @@ class CustomerController {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
-        } catch (Exception ignored) {
+        } catch (Exception e) {
         render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
     }
     }
@@ -41,7 +41,7 @@ class CustomerController {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
