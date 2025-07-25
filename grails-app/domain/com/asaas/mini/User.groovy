@@ -2,6 +2,8 @@ package com.asaas.mini
 
 import com.asaas.mini.enums.Role
 import com.asaas.mini.utils.BaseEntity
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class User extends BaseEntity {
 
@@ -29,9 +31,10 @@ class User extends BaseEntity {
 
     static mapping = {
         password column: '`password`'
+        role enumType: "string"
     }
 
-    Collection<String> getAuthorities() {
-        return [role.name()]
+    Collection<GrantedAuthority> getAuthorities() {
+        return [new SimpleGrantedAuthority(role.name())]
     }
 }

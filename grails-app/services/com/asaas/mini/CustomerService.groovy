@@ -92,6 +92,7 @@ class CustomerService {
         User user = new User(
                 username: username,
                 password: passwordEncoder.encode(password),
+                role: Role.ROLE_ADMINISTRADOR,
                 customer: customer
         )
 
@@ -100,8 +101,6 @@ class CustomerService {
         }
 
         user.save(flush: true)
-
-        new UserRole(user: user, role: Role.ROLE_ADMINISTRADOR).save(flush: true)
     }
 
         public Customer update(Long id, Map params) {

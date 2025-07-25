@@ -161,22 +161,28 @@ grails:
         springsecurity:
             userLookup:
                 userDomainClassName: 'com.asaas.mini.User'
+            authority:
+                className: 'com.asaas.mini.enums.Role'
             password:
                 algorithm: bcrypt
             rest:
                 login:
                     endpointUrl: '/api/login'
                     failureStatusCode: 401
+                    usernameParameter: 'username'
+                    passwordParameter: 'password'
                 token:
                     validation:
-                        enableAnonymousAccess: true
+                        enableAnonymousAccess: false
                     storage:
                         jwt:
                             secret: ${JWT_SECRET}
                             expiration: 10800
-            filterChain:
-                chainMap:
-                    - pattern: '/api/**'
-                      filters: 'JOINED_FILTERS,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter'
+            controllerAnnotations:
+                staticRules:
+                    - pattern: '/api/login'
+                      access: ['permitAll']
+                    - pattern: '/error'
+                      access: ['permitAll']
                     - pattern: '/**'
-                      filters: 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
+                      access: ['isAuthenticated()']
