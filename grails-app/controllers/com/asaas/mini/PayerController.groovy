@@ -20,6 +20,23 @@ class PayerController {
         }
     }
 
+    def show() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.long("id")
+            def payer = payerService.get(id, customer)
+
+            if (!payer) {
+                render(status: 404, text: "Pagador não encontrado")
+                return
+            }
+            respond payer
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
     def delete() {
         try {
             Customer customer = getCustomerLogged()
