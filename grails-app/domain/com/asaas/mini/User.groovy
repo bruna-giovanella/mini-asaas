@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import com.asaas.mini.enums.Role
 import com.asaas.mini.utils.BaseEntity
 
 class User extends BaseEntity {
@@ -7,6 +8,8 @@ class User extends BaseEntity {
     String username
 
     String password
+
+    Role role
 
     boolean enabled = true
 
@@ -21,9 +24,14 @@ class User extends BaseEntity {
     static constraints = {
         username blank: false, unique: true
         password blank: false
+        role nullable: false
     }
 
     static mapping = {
         password column: '`password`'
+    }
+
+    Collection<String> getAuthorities() {
+        return [role.name()]
     }
 }

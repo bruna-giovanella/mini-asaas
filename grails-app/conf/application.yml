@@ -161,8 +161,6 @@ grails:
         springsecurity:
             userLookup:
                 userDomainClassName: 'com.asaas.mini.User'
-                authorityJoinClassName: 'com.asaas.mini.UserRole'
-                authorityClassName: 'com.asaas.mini.Role'
             rest:
                 login:
                     endpointUrl: '/api/login'
