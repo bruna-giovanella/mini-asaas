@@ -86,7 +86,7 @@ class CustomerService {
         String password = userParams.password
 
         if (!username || !password) {
-            throw new ValidationException("Email e senha do usuário administrador são obrigatórios", null)
+            throw new ValidationException("Admin user email and password are required", null)
         }
 
         User user = new User(
@@ -96,7 +96,7 @@ class CustomerService {
         )
 
         if (!user.validate()) {
-            throw new ValidationException("Erro ao validar o usuário administrador", user.errors)
+            throw new ValidationException("Error validating admin user", user.errors)
         }
 
         user.save(flush: true)
@@ -104,7 +104,7 @@ class CustomerService {
         new UserRole(user: user, role: Role.ROLE_ADMINISTRADOR).save(flush: true)
     }
 
-        public Customer update(Long id, Map params) {
+    public Customer update(Long id, Map params) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
         }
@@ -140,12 +140,12 @@ class CustomerService {
 
         Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
         if (existingCpfCnpj && existingCpfCnpj.id != id) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
         }
 
         Customer existingEmail = Customer.findByEmail(params.email)
         if (existingEmail && existingEmail.id != id) {
-            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+            customer.errors.rejectValue("email", "email.exists", "There is already a customer with this email")
         }
 
         if (!params.name?.trim()) {
@@ -175,7 +175,6 @@ class CustomerService {
         if (!params.city?.trim()) {
             customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
         }
-
 
         if (!params.state?.trim()) {
             customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")

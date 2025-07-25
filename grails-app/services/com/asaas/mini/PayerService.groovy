@@ -145,12 +145,12 @@ class PayerService {
 
         Payer existingCpfCnpj = Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, existingPayer.customer)
         if (existingCpfCnpj && existingCpfCnpj.id != id) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um payer com esse CPF/CNPJ para este customer")
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a payer with this CPF/CNPJ for this customer")
         }
 
         Payer existingEmail = Payer.findByEmailAndCustomer(params.email, existingPayer.customer)
         if (existingEmail && existingEmail.id != id) {
-            payer.errors.rejectValue("email", "email.exists", "Já existe um payer com esse email para este customer")
+            payer.errors.rejectValue("email", "email.exists", "There is already a payer with this email for this customer")
         }
 
         if (!params.name?.trim()) {
