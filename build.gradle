@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        mavenCentral()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
@@ -59,6 +60,8 @@ dependencies {
     implementation "org.grails.plugins:gsp"
     implementation 'org.grails.plugins:quartz:2.0.13'
     implementation 'org.quartz-scheduler:quartz:2.3.2'
+    implementation "org.grails.plugins:spring-security-core:5.0.0"
+    implementation "org.grails.plugins:spring-security-rest:3.0.0"
     implementation "org.grails.plugins:mail:3.0.0"
     profile "org.grails.profiles:web"
     runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
@@ -83,10 +86,10 @@ dependencies {
 bootRun {
     ignoreExitValue true
     jvmArgs(
-        '-Dspring.output.ansi.enabled=always', 
-        '-noverify', 
-        '-XX:TieredStopAtLevel=1',
-        '-Xmx1024m')
+            '-Dspring.output.ansi.enabled=always',
+            '-noverify',
+            '-XX:TieredStopAtLevel=1',
+            '-Xmx1024m')
     sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)

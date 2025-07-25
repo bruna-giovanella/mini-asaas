@@ -1,13 +1,22 @@
 package com.asaas.mini
 
+import grails.plugin.springsecurity.SpringSecurityService
 import org.grails.datastore.mapping.validation.ValidationException
+import grails.plugin.springsecurity.annotation.Secured
 
 class PaymentController {
 
     static responseFormats = ['json']
 
     PaymentService paymentService
+    SpringSecurityService springSecurityService
 
+    private Customer getCustomerLogged() {
+        User user = springSecurityService.currentUser as User
+        return user?.customer
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def save() {
         Customer customer = getCustomerLogged()
 
@@ -33,6 +42,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         try {
             Long id = params.id as Long
@@ -50,6 +60,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def list() {
         try {
             Customer customer = getCustomerLogged()
@@ -60,6 +71,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def update() {
         try {
             Customer customer = getCustomerLogged()
@@ -74,6 +86,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def delete() {
         try {
             Customer customer = getCustomerLogged()
@@ -89,6 +102,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def restore() {
         try {
             Customer customer = getCustomerLogged()
@@ -104,6 +118,7 @@ class PaymentController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def confirmInCash() {
         try {
             Customer customer = getCustomerLogged()
@@ -114,9 +129,5 @@ class PaymentController {
         } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
             render status: 400, text: e.message
         }
-    }
-
-    private Customer getCustomerLogged() {
-        return Customer.get(1L)
     }
 }

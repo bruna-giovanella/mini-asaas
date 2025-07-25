@@ -1,12 +1,22 @@
 package com.asaas.mini
 
+import grails.plugin.springsecurity.SpringSecurityService
 import org.grails.datastore.mapping.validation.ValidationException
+import grails.plugin.springsecurity.annotation.Secured
 
 class PayerController {
 
     static responseFormats = ['json']
-    PayerService payerService
 
+    PayerService payerService
+    SpringSecurityService springSecurityService
+
+    private Customer getCustomerLogged() {
+        User user = springSecurityService.currentUser as User
+        return user?.customer
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def save() {
         try {
             Customer customer = getCustomerLogged()
@@ -20,6 +30,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         try {
             Customer customer = getCustomerLogged()
@@ -37,6 +48,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def list() {
         try {
             Customer customer = getCustomerLogged()
@@ -47,6 +59,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def update() {
         try {
             Long id = params.id as Long
@@ -61,6 +74,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def delete() {
         try {
             Customer customer = getCustomerLogged()
@@ -75,6 +89,7 @@ class PayerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def restore() {
         try {
             Customer customer = getCustomerLogged()
@@ -87,9 +102,4 @@ class PayerController {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
         }
     }
-
-    private Customer getCustomerLogged() {
-        return Customer.get(1L)
-    }
-
 }

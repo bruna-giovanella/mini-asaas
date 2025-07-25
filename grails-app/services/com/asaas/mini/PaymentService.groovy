@@ -5,8 +5,6 @@ import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 @Transactional
 class PaymentService {

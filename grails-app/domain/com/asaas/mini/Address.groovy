@@ -1,6 +1,6 @@
 package com.asaas.mini
 
-class Address {
+class   Address {
     String cep
 
     String city
