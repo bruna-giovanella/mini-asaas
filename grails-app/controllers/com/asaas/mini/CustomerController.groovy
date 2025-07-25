@@ -20,7 +20,7 @@ class CustomerController {
 
     def delete() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             customerService.deleteCustomer(id)
             render(status: 204)
         } catch (ValidationException e) {
