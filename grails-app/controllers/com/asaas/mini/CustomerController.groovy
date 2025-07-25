@@ -13,7 +13,7 @@ class CustomerController {
             respond customer, [status: 201]
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             render(status: 500, contentType: 'application/json', text: [error: "Internal server error"].toString())
         }
     }
@@ -25,7 +25,7 @@ class CustomerController {
             render(status: 204)
         } catch (ValidationException e) {
             render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             render(status: 500, contentType: 'application/json', text: [error: "Internal server error"].toString())
         }
     }
