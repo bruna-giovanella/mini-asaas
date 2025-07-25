@@ -10,7 +10,7 @@ class PayerService {
         Payer payerValidate = validateSave(params)
 
         if (payerValidate.hasErrors()) {
-            throw new ValidationException("Error creating payer", payerValidate.errors)
+            throw new ValidationException("Erro ao criar o pagador: ", payerValidate.errors)
         }
 
         Address address = new Address()
