@@ -105,8 +105,6 @@ class CustomerService {
     private Customer validateUpdate(Long id, Map params) {
         Customer customer = new Customer()
 
-        Customer existingCustomer = Customer.get(id)
-
         Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
         if (existingCpfCnpj && existingCpfCnpj.id != id) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
