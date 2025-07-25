@@ -18,6 +18,21 @@ class CustomerController {
         }
     }
 
+    def show() {
+        try {
+            Long id = params.long("id")
+            Customer customer = customerService.getCustomer(id)
+
+            if (!customer) {
+                render(status: 404, text: "Cliente não encontrado")
+                return
+            }
+            respond customer
+        } catch (Exception e) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
     def delete() {
         try {
             Long id = params.long("id")
@@ -29,7 +44,7 @@ class CustomerController {
             render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
         } catch (Exception e) {
         render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-    }
+        }
     }
 
     def restore() {
