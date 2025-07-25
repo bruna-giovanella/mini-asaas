@@ -105,13 +105,19 @@ class CustomerService {
     private Customer validateUpdate(Long id, Map params) {
         Customer customer = new Customer()
 
-        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
-        if (existingCpfCnpj && existingCpfCnpj.id != id) {
+        Customer existingCpfCnpj = Customer.where {
+            cpfCnpj == params.cpfCnpj && id != id
+        }.get()
+
+        if (existingCpfCnpj) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
         }
 
-        Customer existingEmail = Customer.findByEmail(params.email)
-        if (existingEmail && existingEmail.id != id) {
+        Customer existingEmail = Customer.where {
+            email == params.email && id != id
+        }.get()
+
+        if (existingEmail) {
             customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
         }
 
