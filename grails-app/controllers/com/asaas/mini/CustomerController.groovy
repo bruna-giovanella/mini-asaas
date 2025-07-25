@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import grails.plugin.springsecurity.SpringSecurityService
 import org.grails.datastore.mapping.validation.ValidationException
 import grails.plugin.springsecurity.annotation.Secured
 
@@ -7,6 +8,12 @@ class CustomerController {
 
     static responseFormats = ['json']
     CustomerService customerService
+    SpringSecurityService springSecurityService
+
+    private Customer getCustomerLogged() {
+        User user = springSecurityService.currentUser as User
+        return user?.customer
+    }
 
     @Secured('permitAll')
     def save() {
@@ -21,13 +28,14 @@ class CustomerController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         try {
-            Long id = params.id as Long
-            Customer customer = customerService.get(id)
+            Customer loggedCustomer = getCustomerLogged()
 
-            if (!customer) {
+            if (!loggedCustomer) {
                 render(status: 404, text: "Customer not found")
                 return
             }
+
+            Customer customer = customerService.get(Long.valueOf(loggedCustomer.id))
             respond customer
         } catch (Exception e) {
             render(status: 500, text: "Internal Server Error: ${e.message}")
@@ -37,8 +45,14 @@ class CustomerController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def update() {
         try {
-            Long id = params.id as Long
-            Customer customer = customerService.update(id, params)
+            Customer loggedCustomer = getCustomerLogged()
+
+            if (!loggedCustomer) {
+                render(status: 404, text: "Customer not found")
+                return
+            }
+
+            Customer customer = customerService.update(Long.valueOf(loggedCustomer.id), params)
             respond customer, [status: 200]
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
@@ -52,8 +66,14 @@ class CustomerController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def delete() {
         try {
-            Long id = params.id as Long
-            customerService.delete(id)
+            Customer loggedCustomer = getCustomerLogged()
+
+            if (!loggedCustomer) {
+                render(status: 404, text: "Customer not found")
+                return
+            }
+
+            customerService.delete(Long.valueOf(loggedCustomer.id))
             render(status: 204)
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
@@ -65,8 +85,14 @@ class CustomerController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def restore() {
         try {
-            Long id = params.id as Long
-            customerService.restore(id)
+            Customer loggedCustomer = getCustomerLogged()
+
+            if (!loggedCustomer) {
+                render(status: 404, text: "Customer not found")
+                return
+            }
+
+            customerService.restore(Long.valueOf(loggedCustomer.id))
             render(status: 200)
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())

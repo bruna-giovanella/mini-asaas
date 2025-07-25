@@ -1,6 +1,6 @@
 package com.asaas.mini
 
-import com.asaas.mini.utils.SecurityUtils
+import grails.plugin.springsecurity.SpringSecurityService
 import org.grails.datastore.mapping.validation.ValidationException
 import grails.plugin.springsecurity.annotation.Secured
 
@@ -8,8 +8,13 @@ class PaymentController {
 
     static responseFormats = ['json']
 
-    SecurityUtils securityUtils
     PaymentService paymentService
+    SpringSecurityService springSecurityService
+
+    private Customer getCustomerLogged() {
+        User user = springSecurityService.currentUser as User
+        return user?.customer
+    }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def save() {
@@ -124,9 +129,5 @@ class PaymentController {
         } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
             render status: 400, text: e.message
         }
-    }
-
-    private Customer getCustomerLogged() {
-        return securityUtils.getCustomerLogged()
     }
 }
