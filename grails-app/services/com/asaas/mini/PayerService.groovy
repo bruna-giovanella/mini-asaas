@@ -97,4 +97,16 @@ class PayerService {
         payer.save(failOnError:true)
     }
 
+    public void restore(Long id, customer) {
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado para este cliente ou está ativo")
+        }
+
+        payer.deleted = false
+        payer.markDirty('deleted')
+        payer.save(failOnError: true)
+    }
+
 }
