@@ -10,7 +10,8 @@ class CustomerController {
     def save() {
         try {
             Customer customer = customerService.save(params)
-            respond customer, [status: 201]
+            respond(customer, [status: 201])
+
         } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
@@ -28,6 +29,7 @@ class CustomerController {
                 return
             }
             respond customer
+
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
@@ -37,7 +39,8 @@ class CustomerController {
         try {
             Long id = params.long("id")
             Customer customer = customerService.updateCustomer(id, params)
-            respond customer, [status: 200]
+            respond(customer, [status: 200])
+
         } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
         } catch (ValidationException validationException) {
@@ -52,6 +55,7 @@ class CustomerController {
             Long id = params.long("id")
             customerService.deleteCustomer(id)
             render(status: 204)
+
         } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
@@ -66,6 +70,7 @@ class CustomerController {
             Long id = params.long("id")
             customerService.restoreCustomer(id)
             render(status: 200)
+
         } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
