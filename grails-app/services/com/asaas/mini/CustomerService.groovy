@@ -10,7 +10,7 @@ class CustomerService {
         Customer validateCustomer = validateSave(params)
 
         if (validateCustomer.hasErrors()) {
-            throw new ValidationException("Error creating customer", validateCustomer.errors)
+            throw new ValidationException("Erro ao criar cadastro: ", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -32,62 +32,62 @@ class CustomerService {
         Customer customer = new Customer()
 
         if (Customer.findByCpfCnjp(params.cpfCnpj)) {
-            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "Já existe uma conta utilizando o CPF/CNPJ")
         }
 
         if (Customer.findByEmail(params.email)) {
-            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
+            customer.errors.rejectValue("email", "email.exists", "Já existe uma conta utilizando o email")
         }
 
         if (!params.name?.trim()) {
-            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+            customer.errors.rejectValue("name", "name.blank", "Nome é obrigatório")
         } else if (params.name.length() > 255) {
-            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+            customer.errors.rejectValue("name", "name.maxSize", "O nome deve ter no máximo 255 caracteres")
         }
 
         if (!params.email?.trim()) {
-            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+            customer.errors.rejectValue("email", "email.blank", "Email é obrigatório")
         } else if (params.email.length() > 255) {
-            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+            customer.errors.rejectValue("email", "email.maxSize", "O email deve ter no máximo 255 caracteres")
         } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
+            customer.errors.rejectValue("email", "email.invalid", "Email inválido")
         }
 
         if (!params.cpfCnpj?.trim()) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ é obrigatório")
         } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
         }
 
         if (!params.cep?.trim()) {
-            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP é obrigatório")
         }
 
         if (!params.city?.trim()) {
-            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+            customer.errors.rejectValue("address", "address.city.blank", "Cidade é obrigatória")
         }
 
         if (!params.state?.trim()) {
-            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+            customer.errors.rejectValue("address", "address.state.blank", "Estado é obrigatório")
         }
         return customer
     }
 
     public Customer updateCustomer(Long id, Map params) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found")
+            throw new IllegalArgumentException("Conta não encontrada")
         }
 
         Customer validatedCustomer = validateUpdate(id, params)
 
         if (validatedCustomer.hasErrors()) {
-            throw new ValidationException("Error updating customer", validatedCustomer.errors)
+            throw new ValidationException("Erro ao atualizar conta: ", validatedCustomer.errors)
         }
 
         customer.name = params.name
@@ -118,35 +118,35 @@ class CustomerService {
         }
 
         if (!params.name?.trim()) {
-            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+            customer.errors.rejectValue("name", "name.blank", "Nome é obrigatório")
         } else if (params.name.length() > 255) {
-            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+            customer.errors.rejectValue("name", "name.maxSize", "Nome deve ter no máximo 255 caracteres")
         }
 
         if (!params.email?.trim()) {
-            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+            customer.errors.rejectValue("email", "email.blank", "Email é obrigatório")
         } else if (params.email.length() > 255) {
-            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+            customer.errors.rejectValue("email", "email.maxSize", "Email deve ter no máximo 255 caracteres")
         } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
+            customer.errors.rejectValue("email", "email.invalid", "Email inválido")
         }
 
         if (!params.cpfCnpj?.trim()) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ é obrigatório")
         } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
         }
 
         if (!params.cep?.trim()) {
-            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP é obrigatório")
         }
 
         if (!params.city?.trim()) {
-            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+            customer.errors.rejectValue("address", "address.city.blank", "Cidade é obrigatória")
         }
 
         if (!params.state?.trim()) {
-            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+            customer.errors.rejectValue("address", "address.state.blank", "Estado é obrigatório")
         }
         return customer
     }
@@ -154,7 +154,7 @@ class CustomerService {
 
     public Customer getCustomer(Long id) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é necessário")
         }
         Customer customer = Customer.findByIdAndDeleted(id, false)
         return customer;
@@ -164,7 +164,7 @@ class CustomerService {
         Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found")
+            throw new IllegalArgumentException("Conta não encontrada")
         }
         validateDelete(customer)
         customer.deleted = true
@@ -174,7 +174,7 @@ class CustomerService {
 
     private validateDelete(Customer customer) {
         if (Payment.findByCustomerAndDeleted(customer, false)) {
-            throw new IllegalArgumentException("Customer has active payments")
+            throw new IllegalArgumentException("Conta possui pagamentos ativos")
         }
     }
 
@@ -182,7 +182,7 @@ class CustomerService {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found or is not deleted")
+            throw new IllegalArgumentException("Cliente não encontrado ou está ativo")
         }
 
         customer.deleted = false
