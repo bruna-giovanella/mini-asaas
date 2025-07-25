@@ -2,8 +2,6 @@ package com.asaas.mini
 
 import org.grails.datastore.mapping.validation.ValidationException
 
-import java.util.function.LongConsumer
-
 class CustomerController {
 
     static responseFormats = ['json']
