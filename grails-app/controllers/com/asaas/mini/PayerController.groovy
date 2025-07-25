@@ -99,6 +99,6 @@ class PayerController {
     }
 
     private Customer getCustomerLogged() {
-        return securityUtils.getCustomerLogged()
+        return securityUtils.customerLogged
     }
 }

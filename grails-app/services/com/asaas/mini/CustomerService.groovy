@@ -3,7 +3,6 @@ package com.asaas.mini
 import com.asaas.mini.enums.Role
 import grails.gorm.transactions.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.access.AccessDeniedException
 import org.grails.datastore.mapping.validation.ValidationException
 
 @Transactional
@@ -83,15 +82,15 @@ class CustomerService {
     }
 
     private void createFirstUser(Customer customer, Map userParams) {
-        String email = userParams.emailUsuario
+        String username = userParams.username
         String password = userParams.password
 
-        if (!email || !password) {
+        if (!username || !password) {
             throw new ValidationException("Email e senha do usuário administrador são obrigatórios", null)
         }
 
         User user = new User(
-                email: email,
+                username: username,
                 password: passwordEncoder.encode(password),
                 customer: customer
         )

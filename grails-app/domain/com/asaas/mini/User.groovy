@@ -1,11 +1,10 @@
 package com.asaas.mini
 
-import com.asaas.mini.enums.Role
 import com.asaas.mini.utils.BaseEntity
 
-class User extends BaseEntity{
+class User extends BaseEntity {
 
-    String email
+    String username
 
     String password
 
@@ -17,11 +16,14 @@ class User extends BaseEntity{
 
     boolean passwordExpired = false
 
-    Customer customer
+    static belongsTo = [customer: Customer]
 
     static constraints = {
-        email blank: false, email: true
+        username blank: false, unique: true
         password blank: false
-        customer nullable: false
+    }
+
+    static mapping = {
+        password column: '`password`'
     }
 }
