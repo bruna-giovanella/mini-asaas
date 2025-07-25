@@ -39,9 +39,10 @@ class PayerController {
 
     def update() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             Payer payer = payerService.update(id, params)
-            respond payer, [status: 200]
+            respond(payer, [status: 200])
+
         } catch (IllegalArgumentException e) {
             render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
         } catch (ValidationException e) {
