@@ -32,7 +32,7 @@ class PaymentService {
         Payment payment = new Payment()
 
         if (!payer) {
-            payment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado ou não pertence ao cliente logado")
+            payment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado")
             return payment
         }
 
@@ -72,7 +72,7 @@ class PaymentService {
         }.get()
 
         if (!payment) {
-            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
         return payment
@@ -97,7 +97,7 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
         if (payment.status == PaymentStatus.RECEBIDA || Payment.findByIdAndDeleted(id, true)) {
@@ -118,11 +118,11 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Payment not found for this customer")
+            throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
-        if (payment.status != PaymentStatus.EXCLUIDA) {
-            throw new ValidationException("Only deleted payments can be restored", payment.errors)
+        if (Payment.findByIdAndDeleted(id, true)) {
+            throw new ValidationException("Apenas pagamentos deletados podem ser restaurados", payment.errors)
         }
 
         if (payment.dueDate.isBefore(LocalDate.now())) {

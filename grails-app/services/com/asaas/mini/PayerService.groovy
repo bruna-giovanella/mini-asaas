@@ -77,7 +77,7 @@ class PayerService {
         Payer payer = new Payer()
 
         if (!customer || customer.deleted) {
-            payer.errors.rejectValue("customer", "customer.deleted", "O cliente está excluído e não pode ter pagadores")
+            payer.errors.rejectValue("customer", "customer.deleted", "A conta está excluída e não pode ter pagadores")
             return payer
         }
 
@@ -86,7 +86,7 @@ class PayerService {
         }.get()
 
         if (existingCpfCnpj) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ para este cliente")
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ")
         }
 
         Payer existingEmail = Payer.where {
@@ -94,7 +94,7 @@ class PayerService {
         }.get()
 
         if (existingEmail) {
-            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail para este cliente")
+            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail")
         }
 
         if (!params.name?.trim()) {
@@ -144,7 +144,7 @@ class PayerService {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 
         if (!payer) {
-            throw new IllegalArgumentException("Pagador não encontrado para este cliente")
+            throw new IllegalArgumentException("Pagador não encontrado")
         }
 
         payer.deleted = true
@@ -156,7 +156,7 @@ class PayerService {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
 
         if (!payer) {
-            throw new IllegalArgumentException("Pagador não encontrado para este cliente ou já está ativo")
+            throw new IllegalArgumentException("Pagador não encontrado ou está ativo")
         }
 
         payer.deleted = false
