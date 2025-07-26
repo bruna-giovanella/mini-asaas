@@ -11,13 +11,13 @@ class PaymentController {
     def save() {
         Customer customer = getCustomerLogged()
 
-        Long payerId = params.long('payerId')
-        if (!payerId) {
+        Long id = params.long("id")
+        if (!id) {
             render(status: 400, contentType: 'application/json', text: [errors: ["ID do pagamento é obrigatório"]])
             return
         }
 
-        Payer payer = Payer.findByIdAndCustomerAndDeleted(payerId, customer, false)
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
         if (!payer) {
             render(status: 400, contentType: 'application/json', text: [errors: ["Pagador não encontrado"]])
             return
@@ -36,12 +36,12 @@ class PaymentController {
 
     def show() {
         try {
-            Long id = params.id as Long
+            Long id = params.long("id")
             Customer customer = getCustomerLogged()
             Payment payment = paymentService.get(id, customer)
 
             if (!payment) {
-                render(status: 404, text: "Payment not found")
+                render(status: 404, text: "Pagador não encontrado")
                 return
             }
             respond payment
@@ -65,15 +65,16 @@ class PaymentController {
     def delete() {
         try {
             Customer customer = getCustomerLogged()
-            Payment deletedPayment = paymentService.delete(params.long('id'), customer)
+            Long id = params.long("id")
+            Payment deletedPayment = paymentService.delete(id, customer)
             render(status: 204)
 
-        } catch (IllegalArgumentException e) {
-            render(status: 400, text: e.message)
-        } catch (ValidationException e) {
-            render(status: 422, text: e.message)
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
