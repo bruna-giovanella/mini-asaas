@@ -97,14 +97,13 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Payment not found for this customer")
+            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
         }
 
-        if (payment.status in [PaymentStatus.RECEBIDA, PaymentStatus.EXCLUIDA]) {
-            throw new ValidationException("Cannot delete payment with status ${payment.status}", payment.errors)
+        if (payment.status == PaymentStatus.RECEBIDA || Payment.findByIdAndDeleted(id, true)) {
+            throw new ValidationException("Não é possível a exclusão de pagamentos recebidos ou já excluidos", payment.errors)
         }
 
-        payment.status = PaymentStatus.EXCLUIDA
         payment.deleted = true
         payment.save(failOnError: true)
     }
