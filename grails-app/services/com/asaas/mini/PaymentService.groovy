@@ -64,12 +64,16 @@ class PaymentService {
             throw new IllegalArgumentException("ID is required")
         }
 
-        Payment.findByIdAndDeleted(id, false)?.with { payment ->
-            if (payment.payer.customer.id == customer.id) {
-                return payment
-            } else {
-                throw new IllegalArgumentException("Payment not found")
-            }
+        Payment payment = Payment.where {
+            this.id == id &&
+                    payer.customer == customer &&
+                    deleted == false
+        }.get()
+
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
         }
+
+        return payment
     }
 }
