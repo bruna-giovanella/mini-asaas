@@ -65,14 +65,16 @@ class PaymentController {
     def update() {
         try {
             Customer customer = getCustomerLogged()
-            Payment updatedPayment = paymentService.update(params.long('id'), params, customer)
-            respond updatedPayment, [status: 200]
-        } catch (IllegalArgumentException e) {
-            render status: 400, text: e.message
-        } catch (ValidationException e) {
-            render status: 422, text: e.message
-        } catch (Exception e) {
-            render status: 500, text: "Internal Server Error: ${e.message}"
+            Long id = params.long("id")
+            Payment updatedPayment = paymentService.update(id, params, customer)
+            respond(updatedPayment, [status: 200])
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
