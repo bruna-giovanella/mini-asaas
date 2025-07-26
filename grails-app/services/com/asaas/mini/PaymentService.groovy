@@ -57,7 +57,7 @@ class PaymentService {
 
     public Payment update(Long id, Map params, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Payment payment = Payment.createCriteria().get {
@@ -166,20 +166,20 @@ class PaymentService {
 
     public Payment confirmInCash(Long id, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("Payment ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Payment payment = Payment.findById(id)
-        if (!payment || payment.status == PaymentStatus.EXCLUIDA) {
-            throw new IllegalArgumentException("Payment not found")
+        if (payment.payer.customer.id != customer.id) {
+            throw new SecurityException("Pagamento não encontrado")
         }
 
-        if (payment.payer.customer.id != customer.id) {
-            throw new SecurityException("Access denied: Payment does not belong to the logged customer")
+        if (!payment || payment.deleted == true) {
+            throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
         if (payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
-            throw new IllegalStateException("Only payments with status 'Aguardando Pagamento' can be confirmed in cash")
+            throw new IllegalStateException("Apenas pagamentos 'aguardando pagamento' podem ser confirmadas em dinheiro")
         }
 
         payment.status = PaymentStatus.RECEBIDA
