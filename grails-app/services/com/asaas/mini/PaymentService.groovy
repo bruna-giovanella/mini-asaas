@@ -57,7 +57,7 @@ class PaymentService {
 
     public Payment update(Long id, Map params, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Payment payment = Payment.createCriteria().get {
@@ -162,5 +162,30 @@ class PaymentService {
 
         payment.deleted = false
         payment.save(failOnError: true)
+    }
+
+    public Payment confirmInCash(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID é obrigatório")
+        }
+
+        Payment payment = Payment.findById(id)
+        if (payment.payer.customer.id != customer.id) {
+            throw new SecurityException("Pagamento não encontrado")
+        }
+
+        if (!payment || payment.deleted == true) {
+            throw new IllegalArgumentException("Pagamento não encontrado")
+        }
+
+        if (payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
+            throw new IllegalStateException("Apenas pagamentos 'aguardando pagamento' podem ser confirmadas em dinheiro")
+        }
+
+        payment.status = PaymentStatus.RECEBIDA
+        payment.confirmedInCash = true
+        payment.save(flush: true)
+
+        return payment
     }
 }
