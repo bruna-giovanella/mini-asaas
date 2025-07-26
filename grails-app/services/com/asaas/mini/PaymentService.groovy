@@ -76,4 +76,13 @@ class PaymentService {
 
         return payment
     }
+
+    public List<Payment> list(Customer customer) {
+        return Payment.createCriteria().list {
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+        }
+    }
 }
