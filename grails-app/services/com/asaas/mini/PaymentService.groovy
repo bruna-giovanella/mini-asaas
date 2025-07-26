@@ -1,6 +1,7 @@
 package com.asaas.mini
 
 import com.asaas.mini.enums.PaymentType
+import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import java.time.LocalDate
@@ -84,5 +85,26 @@ class PaymentService {
                 eq("customer", customer)
             }
         }
+    }
+
+    public void delete(Long id, Customer customer) {
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+        }
+
+        if (payment.status == PaymentStatus.RECEBIDA || Payment.findByIdAndDeleted(id, true)) {
+            throw new ValidationException("Não é possível a exclusão de pagamentos recebidos ou já excluidos", payment.errors)
+        }
+
+        payment.deleted = true
+        payment.save(failOnError: true)
     }
 }
