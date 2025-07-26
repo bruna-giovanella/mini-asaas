@@ -81,15 +81,16 @@ class PaymentController {
     def restore() {
         try {
             Customer customer = getCustomerLogged()
-            Payment restoredPayment = paymentService.restore(params.long('id'), customer)
+            Long id = params.long("id")
+            Payment restoredPayment = paymentService.restore(id, customer)
             render(status: 200)
 
-        } catch (IllegalArgumentException e) {
-            render(status: 400, text: e.message)
-        } catch (ValidationException e) {
-            render(status: 422, text: e.message)
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
