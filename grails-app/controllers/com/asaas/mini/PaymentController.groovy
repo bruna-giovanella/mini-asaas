@@ -44,10 +44,10 @@ class PaymentController {
                 render(status: 404, text: "Payment not found")
                 return
             }
-
             respond payment
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
@@ -56,8 +56,9 @@ class PaymentController {
             Customer customer = getCustomerLogged()
             List<Payment> paymentList = paymentService.list(customer)
             respond paymentList
-        } catch (Exception e) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
