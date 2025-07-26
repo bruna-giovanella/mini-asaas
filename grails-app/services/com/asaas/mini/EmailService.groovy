@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import grails.gsp.PageRenderer
 import grails.plugins.mail.MailService
 
 import javax.transaction.Transactional
@@ -8,6 +9,7 @@ import javax.transaction.Transactional
 class EmailService {
 
     MailService mailService
+    PageRenderer groovyPageRenderer
 
     private String getStyle() {
         return """
@@ -74,146 +76,36 @@ class EmailService {
     """
     }
 
-    public void sendPaymentCreatedNotification(Payment payment) {
-        def payerEmail = payment.payer?.email
-        if (!payerEmail) {
-            log.warn("Payer without email, cannot send notification.")
-            return
-        }
-
-        String htmlBody = """
-            <html>
-            <head>
-                <style>${getStyle()}</style>
-            </head>
-            <body>
-                <div class="container" role="main" aria-label="Cobrança criada">
-                    <h1>Cobrança Criada ✅</h1>
-                    <p>Olá <span class="highlight">${payment.payer.name}</span>,</p>
-                    <p>Uma nova cobrança no valor de <strong>R\$ ${payment.value}</strong> foi criada com vencimento para <strong>${payment.dueDate}</strong>.</p>
-                    <p>Fique à vontade para entrar em contato caso tenha dúvidas ou precise de ajuda.</p>
-                    <div class="signature">
-                        Com carinho,<br>
-                        <strong>Equipe MiniAsaas</strong><br>
-                        <a href="https://www.miniasaas.com.br" target="_blank" rel="noopener noreferrer">www.miniasaas.com.br</a><br>
-                        <em>Mini Asinhas te da asonas ✨</em>
-                    </div>
-                </div>
-            </body>
-            </html>
-        """
-
-        mailService.sendMail {
-            to payerEmail
-            subject "Cobrança criada"
-            html htmlBody
-        }
+    void sendPaymentCreatedNotification(Payment payment) {
+        sendEmail(payment.payer.email, "Cobrança criada", "/emails/paymentCreated", payment)
     }
 
-    public void sendPaymentPaidNotification(Payment payment) {
-        def payerEmail = payment.payer?.email
-        if (!payerEmail) {
-            log.warn("Payer without email, cannot send notification.")
-            return
-        }
-
-        String htmlBody = """
-            <html>
-            <head>
-                <style>${getStyle()}</style>
-            </head>
-            <body>
-                <div class="container" role="main" aria-label="Cobrança paga">
-                    <h1>Cobrança Paga 🎉</h1>
-                    <p>Olá <span class="highlight">${payment.payer.name}</span>,</p>
-                    <p>Recebemos o pagamento no valor de <strong>R\$ ${payment.value}</strong>. Muito obrigada pela confiança!</p>
-                    <p>Estamos sempre aqui para ajudar você.</p>
-                    <div class="signature">
-                        Com carinho,<br>
-                        <strong>Equipe MiniAsaas</strong><br>
-                        <a href="https://www.miniasaas.com.br" target="_blank" rel="noopener noreferrer">www.miniasaas.com.br</a><br>
-                        <em>Mini Asinhas te da asonas ✨</em>
-                    </div>
-                </div>
-            </body>
-            </html>
-        """
-
-        mailService.sendMail {
-            to payerEmail
-            subject "Cobrança paga"
-            html htmlBody
-        }
+    void sendPaymentPaidNotification(Payment payment) {
+        sendEmail(payment.payer.email, "Cobrança paga", "/emails/paymentPaid", payment)
     }
 
-    public void sendPaymentDeletedNotification(Payment payment) {
-        def payerEmail = payment.payer?.email
-        if (!payerEmail) {
-            log.warn("Payer without email, cannot send notification.")
-            return
-        }
-
-        String htmlBody = """
-            <html>
-            <head>
-                <style>${getStyle()}</style>
-            </head>
-            <body>
-                <div class="container" role="main" aria-label="Cobrança excluída">
-                    <h1>Cobrança Excluída ❌</h1>
-                    <p>Olá <span class="highlight">${payment.payer.name}</span>,</p>
-                    <p>A cobrança no valor de <strong>R\$ ${payment.value}</strong>, com vencimento para <strong>${payment.dueDate}</strong>, foi excluída conforme solicitado.</p>
-                    <p>Se precisar de qualquer assistência, estamos à disposição.</p>
-                    <div class="signature">
-                        Com carinho,<br>
-                        <strong>Equipe MiniAsaas</strong><br>
-                        <a href="https://www.miniasaas.com.br" target="_blank" rel="noopener noreferrer">www.miniasaas.com.br</a><br>
-                        <em>Mini Asinhas te da asonas ✨</em>
-                    </div>
-                </div>
-            </body>
-            </html>
-        """
-
-        mailService.sendMail {
-            to payerEmail
-            subject "Cobrança excluída"
-            html htmlBody
-        }
+    void sendPaymentDeletedNotification(Payment payment) {
+        sendEmail(payment.payer.email, "Cobrança excluída", "/emails/paymentDeleted", payment)
     }
 
-    public void sendPaymentExpiredNotification(Payment payment) {
-        def payerEmail = payment.payer?.email
-        if (!payerEmail) {
-            log.warn("Payer without email, cannot send notification.")
+    void sendPaymentExpiredNotification(Payment payment) {
+        sendEmail(payment.payer.email, "Cobrança vencida", "/emails/paymentExpired", payment)
+    }
+
+    private void sendEmail(String to, String subject, String templatePath, Payment payment) {
+        if (!to) {
+            log.warn("Pagador não possui email cadastrado")
             return
         }
 
-        String htmlBody = """
-            <html>
-            <head>
-                <style>${getStyle()}</style>
-            </head>
-            <body>
-                <div class="container" role="main" aria-label="Cobrança vencida">
-                    <h1>Cobrança Vencida ⏰</h1>
-                    <p>Olá <span class="highlight">${payment.payer.name}</span>,</p>
-                    <p>A cobrança no valor de <strong>R\$ ${payment.value}</strong>, com vencimento em <strong>${payment.dueDate}</strong>, está vencida.</p>
-                    <p>Por favor, entre em contato para regularizar e evitar transtornos.</p>
-                    <div class="signature">
-                        Com carinho,<br>
-                        <strong>Equipe MiniAsaas</strong><br>
-                        <a href="https://www.miniasaas.com.br" target="_blank" rel="noopener noreferrer">www.miniasaas.com.br</a><br>
-                        <em>Mini Asinhas te da asonas ✨</em>
-                    </div>
-                </div>
-            </body>
-            </html>
-        """
+        String htmlBody = groovyPageRenderer.render(
+                template: templatePath,
+                model: [payment: payment]
+        )
 
         mailService.sendMail {
-            to payerEmail
-            subject "Cobrança vencida"
+            to to
+            subject subject
             html htmlBody
         }
     }
