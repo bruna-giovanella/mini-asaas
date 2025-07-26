@@ -62,7 +62,7 @@ class CustomerService {
         Customer customer = new Customer()
 
         Customer existingCpfCnpj = Customer.where {
-            cpfCnpj == params.cpfCnpj && (id == null || this.id != id)
+            cpfCnpj == params.cpfCnpj && (id == null || ne('id', id))
         }.get()
 
         if (existingCpfCnpj) {
@@ -70,7 +70,7 @@ class CustomerService {
         }
 
         Customer existingEmail = Customer.where {
-            email == params.email && (id == null || this.id != id)
+            email == params.email && (id == null || ne('id', id))
         }.get()
 
         if (existingEmail) {
