@@ -114,11 +114,15 @@ class PaymentController {
         try {
             Customer customer = getCustomerLogged()
             Long id = params.long('id')
-
             Payment payment = paymentService.confirmInCash(id, customer)
-            respond payment, [status: 200]
-        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
-            render status: 400, text: e.message
+            respond(payment, [status: 200])
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 400, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (SecurityException securityException) {
+            render(status: 403, contentType: 'application/json', text: [error: "Você não tem permissão para acessar este recurso"].toString())
+        } catch (IllegalStateException illegalStateException) {
+            render(status: 409, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
