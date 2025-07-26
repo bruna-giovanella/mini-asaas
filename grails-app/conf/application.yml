@@ -136,3 +136,21 @@ environments:
                 testOnReturn: false
                 jdbcInterceptors: ConnectionState
                 defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+---
+grails:
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${GMAIL_USERNAME}
+        password: ${GMAIL_APP_PASSWORD}
+        props:
+            mail.smtp.auth: true
+            mail.smtp.starttls.enable: true
+
+---
+grails:
+    plugin:
+        quartz2:
+            autoStartup: true
+            waitForJobsToCompleteOnShutdown: true
+            jdbcStore: false
