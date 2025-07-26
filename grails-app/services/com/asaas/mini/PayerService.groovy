@@ -10,7 +10,7 @@ class PayerService {
         Payer payerValidate = validateSave(params, customer)
 
         if (payerValidate.hasErrors()) {
-            throw new ValidationException("Error creating payer", payerValidate.errors)
+            throw new ValidationException("Erro ao criar pagador: ", payerValidate.errors)
         }
 
         Address address = new Address()
@@ -30,62 +30,6 @@ class PayerService {
         return payer.save(flush: true, failOnError: true)
     }
 
-    private Payer validateSave(Map params, Customer customer) {
-        Payer payer = new Payer()
-
-        if (!customer || customer.deleted) {
-            payer.errors.rejectValue("customer", "customer.deleted", "Customer is deleted and cannot have new payers")
-            return payer
-        }
-
-        if (Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, customer)) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a payer with this CPF/CNPJ for this customer")
-        }
-
-        if (Payer.findByEmailAndCustomer(params.email, customer)) {
-            payer.errors.rejectValue("email", "email.exists", "There is already a payer with this email for this customer")
-        }
-
-        if (!params.name?.trim()) {
-            payer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
-        } else if (params.name.length() > 255) {
-            payer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
-        }
-
-        if (!params.email?.trim()) {
-            payer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
-        } else if (params.email.length() > 255) {
-            payer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
-        } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            payer.errors.rejectValue("email", "email.invalid", "Invalid email")
-        }
-
-        if (!params.contactNumber?.trim()) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.blank", "Contact number cannot be empty")
-        } else if (!(params.contactNumber ==~ /^(1[1-9]|2[12478]|3[1234578]|4[12345789]|5[1345]|6[1]|7[134579]|8[1-9]|9[1-9])\d{8,9}$/)) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.invalidFormat", "Invalid contact number")
-        }
-
-        if (!params.cpfCnpj?.trim()) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
-        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "Invalid CPF/CNPJ")
-        }
-
-        if (!params.cep?.trim()) {
-            payer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
-        }
-
-        if (!params.city?.trim()) {
-            payer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
-        }
-
-        if (!params.state?.trim()) {
-            payer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
-        }
-        return payer
-    }
-
     public Payer get(Long id, Customer customer) {
         if (!id) {
             throw new IllegalArgumentException("ID is required")
@@ -101,19 +45,19 @@ class PayerService {
 
     public Payer update(Long id, Map params) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("O ID é obrigatório")
         }
 
         Payer payer = Payer.findByIdAndDeleted(id, false)
 
         if (!payer) {
-            throw new IllegalArgumentException("Payer not found")
+            throw new IllegalArgumentException("Pagador não encontrado")
         }
 
-        Payer validatedPayer = validateUpdate(id, params)
+        Payer validatedPayer = validateParams(params, payer.customer, id)
 
         if (validatedPayer.hasErrors()) {
-            throw new ValidationException("Error updating payer", validatedPayer.errors)
+            throw new ValidationException("Erro ao atualizar pagador", validatedPayer.errors)
         }
 
         payer.name = params.name
@@ -129,65 +73,64 @@ class PayerService {
         return payer.save(flush: true, failOnError: true)
     }
 
-    private Payer validateUpdate(Long id, Map params) {
+    private Payer validateParams(Map params, Customer customer, Long id = null) {
         Payer payer = new Payer()
 
-        Payer existingPayer = Payer.get(id)
-        if (!existingPayer) {
-            throw new IllegalArgumentException("Payer not found")
-        }
-
-        if (existingPayer.customer?.deleted) {
-            payer.errors.rejectValue("customer", "customer.deleted", "Cannot update payer because the customer is deleted")
+        if (!customer || customer.deleted) {
+            payer.errors.rejectValue("customer", "customer.deleted", "O cliente está excluído e não pode ter pagadores")
             return payer
         }
 
-        Payer existingCpfCnpj = Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, existingPayer.customer)
-        if (existingCpfCnpj && existingCpfCnpj.id != id) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um payer com esse CPF/CNPJ para este customer")
+        Payer existingCpfCnpj = Payer.where {
+            cpfCnpj == params.cpfCnpj && customer == customer && (id == null || this.id != id)
+        }.get()
+
+        if (existingCpfCnpj) {
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ para este cliente")
         }
 
-        Payer existingEmail = Payer.findByEmailAndCustomer(params.email, existingPayer.customer)
-        if (existingEmail && existingEmail.id != id) {
-            payer.errors.rejectValue("email", "email.exists", "Já existe um payer com esse email para este customer")
+        Payer existingEmail = Payer.where {
+            email == params.email && customer == customer && (id == null || this.id != id)
+        }.get()
+
+        if (existingEmail) {
+            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail para este cliente")
         }
 
         if (!params.name?.trim()) {
-            payer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+            payer.errors.rejectValue("name", "name.blank", "O nome é obrigatório")
         } else if (params.name.length() > 255) {
-            payer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+            payer.errors.rejectValue("name", "name.maxSize", "O nome deve ter no máximo 255 caracteres")
         }
 
         if (!params.email?.trim()) {
-            payer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+            payer.errors.rejectValue("email", "email.blank", "O e-mail é obrigatório")
         } else if (params.email.length() > 255) {
-            payer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+            payer.errors.rejectValue("email", "email.maxSize", "O e-mail deve ter no máximo 255 caracteres")
         } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            payer.errors.rejectValue("email", "email.invalid", "Invalid email")
+            payer.errors.rejectValue("email", "email.invalid", "E-mail inválido")
         }
 
         if (!params.contactNumber?.trim()) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.blank", "Contact number cannot be empty")
+            payer.errors.rejectValue("contactNumber", "contactNumber.blank", "O número de contato é obrigatório")
         } else if (!(params.contactNumber ==~ /^(1[1-9]|2[12478]|3[1234578]|4[12345789]|5[1345]|6[1]|7[134579]|8[1-9]|9[1-9])\d{8,9}$/)) {
-            payer.errors.rejectValue("contactNumber", "contactNumber.invalidFormat", "Invalid contact number")
+            payer.errors.rejectValue("contactNumber", "contactNumber.invalidFormat", "Número de contato inválido")
         }
 
         if (!params.cpfCnpj?.trim()) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "O CPF/CNPJ é obrigatório")
         } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "Invalid CPF/CNPJ")
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
         }
 
         if (!params.cep?.trim()) {
-            payer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+            payer.errors.rejectValue("address", "address.cep.blank", "O CEP é obrigatório")
         }
-
         if (!params.city?.trim()) {
-            payer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+            payer.errors.rejectValue("address", "address.city.blank", "A cidade é obrigatória")
         }
-
         if (!params.state?.trim()) {
-            payer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+            payer.errors.rejectValue("address", "address.state.blank", "O estado é obrigatório")
         }
 
         return payer
@@ -195,13 +138,13 @@ class PayerService {
 
     public void delete(Long id, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("O ID é obrigatório")
         }
 
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 
         if (!payer) {
-            throw new IllegalArgumentException("Payer not found for this customer")
+            throw new IllegalArgumentException("Pagador não encontrado para este cliente")
         }
 
         payer.deleted = true
@@ -212,8 +155,8 @@ class PayerService {
     public void restore(Long id, customer) {
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
 
-        if (!customer) {
-            throw new IllegalArgumentException("Customer not found or is not deleted")
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado para este cliente ou já está ativo")
         }
 
         payer.deleted = false
