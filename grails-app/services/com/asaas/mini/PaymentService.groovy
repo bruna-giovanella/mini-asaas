@@ -61,7 +61,7 @@ class PaymentService {
 
     public Payment get(Long id, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Payment payment = Payment.where {
