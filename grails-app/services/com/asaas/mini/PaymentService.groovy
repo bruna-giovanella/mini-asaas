@@ -14,10 +14,10 @@ class PaymentService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     Payment save(Map params, Payer payer) {
-        Payment payment = validateSave(params, payer)
+        Payment payment = validateParams(params, payer)
 
         if (payment.hasErrors()) {
-            throw new ValidationException("Error creating payment", payment.errors)
+            throw new ValidationException("Erro ao criar pagamento", payment.errors)
         }
 
         payment.value = new BigDecimal(params.value)
@@ -28,50 +28,22 @@ class PaymentService {
         payment.save(flush: true, failOnError: true)
     }
 
-    private Payment validateSave(Map params, Payer payer) {
-        Payment payment = new Payment()
-
-        if (!payer) {
-            payment.errors.rejectValue("payer", "payer.invalid", "Payer not found or does not belong to the logged-in customer")
-            return payment
+    public Payment get(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
-        try {
-            BigDecimal value = new BigDecimal(params.value)
-            if (value <= 0) {
-                payment.errors.rejectValue("value", "value.invalid", "Value must be positive")
-            }
-        } catch (Exception e) {
-            payment.errors.rejectValue("value", "value.invalid", "Invalid value")
-        }
+        Payment payment = Payment.where {
+            this.id == id &&
+                    payer.customer == customer &&
+                    deleted == false
+        }.get()
 
-        try {
-            PaymentType.valueOf(params.type.toUpperCase())
-        } catch (Exception e) {
-            payment.errors.rejectValue("type", "type.invalid", "Invalid payment type")
-        }
-
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException e) {
-            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Invalid due date format. Expected format: dd/MM/yyyy")
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
         return payment
-    }
-
-    public Payment get(Long id, Customer customer) {
-        if (!id) {
-            throw new IllegalArgumentException("ID is required")
-        }
-
-        Payment.findByIdAndDeleted(id, false)?.with { payment ->
-            if (payment.payer.customer.id == customer.id) {
-                return payment
-            } else {
-                throw new IllegalArgumentException("Payment not found")
-            }
-        }
     }
 
     public List<Payment> list(Customer customer) {
@@ -97,10 +69,10 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Payment not found")
+            throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
-        validateUpdate(payment, params)
+        validateParams(params, null, payment)
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
@@ -109,35 +81,39 @@ class PaymentService {
         return payment.save(flush: true, failOnError: true)
     }
 
-    private void validateUpdate(Payment payment, Map params) {
-        if (payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
-            payment.errors.rejectValue("status", "status.invalid", "Only pending payments can be updated")
+    private Payment validateParams(Map params, Payer payer = null, Payment payment = null) {
+        Payment tempPayment = new Payment()
+
+        if (payment && payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
+            tempPayment.errors.rejectValue("status", "status.invalid", "Somente pagamentos pendentes podem ser atualizados")
+        }
+
+        if (!payment && !payer) {
+            tempPayment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado")
         }
 
         try {
             BigDecimal value = new BigDecimal(params.value)
             if (value <= 0) {
-                payment.errors.rejectValue("value", "value.invalid", "Value must be positive")
+                tempPayment.errors.rejectValue("value", "value.invalid", "O valor deve ser positivo")
             }
-        } catch (Exception e) {
-            payment.errors.rejectValue("value", "value.invalid", "Invalid value")
+        } catch (Exception exception) {
+            tempPayment.errors.rejectValue("value", "value.invalid", "Valor inválido")
         }
 
         try {
             PaymentType.valueOf(params.type.toUpperCase())
-        } catch (Exception e) {
-            payment.errors.rejectValue("type", "type.invalid", "Invalid payment type")
+        } catch (Exception exception) {
+            tempPayment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
         }
 
         try {
             LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException e) {
-            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Invalid due date format. Expected format: dd/MM/yyyy")
+        } catch (DateTimeParseException dateTimeParseException) {
+            tempPayment.errors.rejectValue("dueDate", "dueDate.invalid", "Formato de data de vencimento inválido. Formato esperado: dd/MM/yyyy")
         }
 
-        if (payment.hasErrors()) {
-            throw new ValidationException("Error updating payment", payment.errors)
-        }
+        return tempPayment
     }
 
     public void delete(Long id, Customer customer) {
@@ -150,14 +126,13 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Payment not found for this customer")
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
-        if (payment.status in [PaymentStatus.RECEBIDA, PaymentStatus.EXCLUIDA]) {
-            throw new ValidationException("Cannot delete payment with status ${payment.status}", payment.errors)
+        if (payment.status == PaymentStatus.RECEBIDA || Payment.findByIdAndDeleted(id, true)) {
+            throw new ValidationException("Não é possível a exclusão de pagamentos recebidos ou já excluidos", payment.errors)
         }
 
-        payment.status = PaymentStatus.EXCLUIDA
         payment.deleted = true
         payment.save(failOnError: true)
     }
@@ -172,11 +147,11 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Payment not found for this customer")
+            throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
-        if (payment.status != PaymentStatus.EXCLUIDA) {
-            throw new ValidationException("Only deleted payments can be restored", payment.errors)
+        if (Payment.findByIdAndDeleted(id, true)) {
+            throw new ValidationException("Apenas pagamentos deletados podem ser restaurados", payment.errors)
         }
 
         if (payment.dueDate.isBefore(LocalDate.now())) {
