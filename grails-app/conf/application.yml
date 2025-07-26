@@ -145,4 +145,16 @@ grails:
         password: ${GMAIL_APP_PASSWORD}
         props:
             mail.smtp.auth: true
+<<<<<<< HEAD
             mail.smtp.starttls.enable: true
+=======
+            mail.smtp.starttls.enable: true
+
+---
+grails:
+    plugin:
+        quartz2:
+            autoStartup: true
+            waitForJobsToCompleteOnShutdown: true
+            jdbcStore: false
+>>>>>>> job-quartz

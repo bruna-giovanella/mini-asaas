@@ -9,10 +9,10 @@ import com.asaas.mini.enums.PaymentStatus
 class CustomerService {
 
     public Customer save(Map params) {
-        Customer validateCustomer = validateSave(params)
+        Customer validateCustomer = validateParams(params)
 
         if (validateCustomer.hasErrors()) {
-            throw new ValidationException("Error creating customer", validateCustomer.errors)
+            throw new ValidationException("Erro ao criar cadastro: ", validateCustomer.errors)
         }
 
         Address address = new Address()
@@ -30,66 +30,21 @@ class CustomerService {
         return customer.save(flush: true, failOnError: true)
     }
 
-    private Customer validateSave(Map params) {
-        Customer customer = new Customer()
-
-        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
-            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
-        }
-
-        if (Customer.findByEmail(params.email)) {
-            customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
-        }
-
-        if (!params.name?.trim()) {
-            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
-        } else if (params.name.length() > 255) {
-            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
-        }
-
-        if (!params.email?.trim()) {
-            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
-        } else if (params.email.length() > 255) {
-            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
-        } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
-        }
-
-        if (!params.cpfCnpj?.trim()) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
-        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
-        }
-
-        if (!params.cep?.trim()) {
-            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
-        }
-
-        if (!params.city?.trim()) {
-            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
-        }
-
-        if (!params.state?.trim()) {
-            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
-        }
-        return customer
-    }
-
     public Customer update(Long id, Map params) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é obrigatório")
         }
 
         Customer customer = Customer.findByIdAndDeleted(id, false)
 
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found")
+            throw new IllegalArgumentException("Conta não encontrada")
         }
 
-        Customer validatedCustomer = validateUpdate(id, params)
+        Customer validatedCustomer = validateParams(params, id)
 
         if (validatedCustomer.hasErrors()) {
-            throw new ValidationException("Error updating customer", validatedCustomer.errors)
+            throw new ValidationException("Erro ao atualizar conta: ", validatedCustomer.errors)
         }
 
         customer.name = params.name
@@ -104,59 +59,64 @@ class CustomerService {
         return customer.save(flush: true, failOnError: true)
     }
 
-    private Customer validateUpdate(Long id, Map params) {
+    private Customer validateParams(Map params, Long id = null) {
+
         Customer customer = new Customer()
 
-        Customer existingCustomer = Customer.get(id)
+        Customer existingCpfCnpj = Customer.where {
+            cpfCnpj == params.cpfCnpj && (id == null || this.id != id)
+        }.get()
 
-        Customer existingCpfCnpj = Customer.findByCpfCnpj(params.cpfCnpj)
-        if (existingCpfCnpj && existingCpfCnpj.id != id) {
+        if (existingCpfCnpj) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um customer com esse CPF/CNPJ")
         }
 
-        Customer existingEmail = Customer.findByEmail(params.email)
-        if (existingEmail && existingEmail.id != id) {
+        Customer existingEmail = Customer.where {
+            email == params.email && (id == null || this.id != id)
+        }.get()
+
+        if (existingEmail) {
             customer.errors.rejectValue("email", "email.exists", "Já existe um customer com esse email")
         }
 
         if (!params.name?.trim()) {
-            customer.errors.rejectValue("name", "name.blank", "Name cannot be empty")
+            customer.errors.rejectValue("name", "name.blank", "Nome é obrigatório")
         } else if (params.name.length() > 255) {
-            customer.errors.rejectValue("name", "name.maxSize", "Name must have a maximum of 255 characters")
+            customer.errors.rejectValue("name", "name.maxSize", "O nome deve ter no máximo 255 caracteres")
         }
 
         if (!params.email?.trim()) {
-            customer.errors.rejectValue("email", "email.blank", "Email cannot be empty")
+            customer.errors.rejectValue("email", "email.blank", "Email é obrigatório")
         } else if (params.email.length() > 255) {
-            customer.errors.rejectValue("email", "email.maxSize", "Email must have a maximum of 255 characters")
+            customer.errors.rejectValue("email", "email.maxSize", "O email deve ter no máximo 255 caracteres")
         } else if (!(params.email ==~ /^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            customer.errors.rejectValue("email", "email.invalid", "Email invalid")
+            customer.errors.rejectValue("email", "email.invalid", "Email inválido")
         }
 
         if (!params.cpfCnpj?.trim()) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ é obrigatório")
         } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
-            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
         }
 
         if (!params.cep?.trim()) {
-            customer.errors.rejectValue("address", "address.cep.blank", "CEP cannot be empty")
+            customer.errors.rejectValue("address", "address.cep.blank", "CEP é obrigatório")
         }
 
         if (!params.city?.trim()) {
-            customer.errors.rejectValue("address", "address.city.blank", "City cannot be empty")
+            customer.errors.rejectValue("address", "address.city.blank", "Cidade é obrigatória")
         }
-
 
         if (!params.state?.trim()) {
-            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
+            customer.errors.rejectValue("address", "address.state.blank", "Estado é obrigatório")
         }
+
         return customer
     }
 
     public Customer get(Long id) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é necessário")
         }
         Customer customer = Customer.findByIdAndDeleted(id, false)
         return customer
@@ -169,7 +129,7 @@ class CustomerService {
 
         Customer customer = Customer.findByIdAndDeleted(id, false)
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found")
+            throw new IllegalArgumentException("Conta não encontrada")
         }
 
         validateDelete(customer)
@@ -213,7 +173,7 @@ class CustomerService {
         Customer customer = Customer.findByIdAndDeleted(id, true)
 
         if (!customer) {
-            throw new IllegalArgumentException("Customer not found or is not deleted")
+            throw new IllegalArgumentException("Cliente não encontrado ou está ativo")
         }
 
         customer.deleted = false
