@@ -2,15 +2,16 @@ package com.asaas.mini
 
 import org.grails.datastore.mapping.validation.ValidationException
 
-class CustomerController {
+class PayerController {
 
     static responseFormats = ['json']
-    CustomerService customerService
+    PayerService payerService
 
     def save() {
         try {
-            Customer customer = customerService.save(params)
-            respond(customer, [status: 201])
+            Customer customer = getCustomerLogged()
+            Payer payer = payerService.save(params, customer)
+            respond(payer, [status: 201])
 
         } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
@@ -21,14 +22,26 @@ class CustomerController {
 
     def show() {
         try {
+            Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            Customer customer = customerService.get(id)
+            Payer payer = payerService.get(id, customer)
 
-            if (!customer) {
-                render(status: 404, text: "Cliente não encontrado")
+            if (!payer) {
+                render(status: 404, text: "Pagador não encontrado")
                 return
             }
-            respond customer
+            respond payer
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
+    def list() {
+        try {
+            Customer customer = getCustomerLogged()
+            List<Payer> payerList = payerService.list(customer)
+            respond payerList
 
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
@@ -38,8 +51,8 @@ class CustomerController {
     def update() {
         try {
             Long id = params.long("id")
-            Customer customer = customerService.update(id, params)
-            respond(customer, [status: 200])
+            Payer payer = payerService.update(id, params)
+            respond(payer, [status: 200])
 
         } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
@@ -52,8 +65,9 @@ class CustomerController {
 
     def delete() {
         try {
+            Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            customerService.delete(id)
+            payerService.delete(id, customer)
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -61,14 +75,15 @@ class CustomerController {
         } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-        render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
     def restore() {
         try {
+            Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            customerService.restore(id)
+            payerService.restore(id, customer)
             render(status: 200)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -79,4 +94,9 @@ class CustomerController {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
+
+    private Customer getCustomerLogged() {
+        return Customer.get(1L)
+    }
+
 }
