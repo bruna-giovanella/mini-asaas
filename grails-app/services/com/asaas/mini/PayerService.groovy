@@ -7,7 +7,7 @@ import org.grails.datastore.mapping.validation.ValidationException
 class PayerService {
 
     public Payer save(Map params, Customer customer) {
-        Payer payerValidate = validateSave(params)
+        Payer payerValidate = validateSave(params, customer)
 
         if (payerValidate.hasErrors()) {
             throw new ValidationException("Erro ao criar pagador: ", payerValidate.errors)
@@ -30,7 +30,7 @@ class PayerService {
         return payer.save(flush: true, failOnError: true)
     }
 
-    private Payer validateSave(Map params) {
+    private Payer validateSave(Map params, Customer customer) {
         Payer payer = new Payer()
 
         if (Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, customer)) {
@@ -96,5 +96,4 @@ class PayerService {
         payer.markDirty('deleted')
         payer.save(failOnError:true)
     }
-
 }
