@@ -31,8 +31,8 @@ class CustomerService {
     private Customer validateSave(Map params) {
         Customer customer = new Customer()
 
-        if (Customer.findByCpfCnjp(params.cpfCnpj)) {
-            customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
+        if (Customer.findByCpfCnpj(params.cpfCnpj)) {
+            customer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "There is already a customer with this CPF/CNPJ")
         }
 
         if (Customer.findByEmail(params.email)) {
@@ -55,7 +55,7 @@ class CustomerService {
 
         if (!params.cpfCnpj?.trim()) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ cannot be empty")
-        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
+        } else if (!(params.cpfCnpj ==~ /^(\d{11}|\d{14})$/)) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ invalid")
         }
 
