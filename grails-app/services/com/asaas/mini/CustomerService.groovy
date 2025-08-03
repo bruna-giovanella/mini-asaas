@@ -31,9 +31,9 @@ class CustomerService {
     private Customer validateSave(Map params) {
         Customer customer = new Customer()
 
+        CustomerServiceController-show
         if (Customer.findByCpfCnjp(params.cpfCnpj)) {
             customer.errors.rejectValue("cpfcnpj", "cpfCnpj.exists", "Já existe uma conta utilizando o CPF/CNPJ")
-        }
 
         if (Customer.findByEmail(params.email)) {
             customer.errors.rejectValue("email", "email.exists", "Já existe uma conta utilizando o email")
@@ -54,6 +54,7 @@ class CustomerService {
         }
 
         if (!params.cpfCnpj?.trim()) {
+       CustomerServiceController-show
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ é obrigatório")
         } else if (!(params.cpfCnpj ==~ /^(\d{11}|\d{14})$/)) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
