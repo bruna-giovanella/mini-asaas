@@ -55,7 +55,7 @@ class CustomerService {
 
         if (!params.cpfCnpj?.trim()) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.blank", "CPF/CNPJ é obrigatório")
-        } else if (!(params.cpfCnpj ==~ /\d{11}|\d{14}/)) {
+        } else if (!(params.cpfCnpj ==~ /^(\d{11}|\d{14})$/)) {
             customer.errors.rejectValue("cpfCnpj", "cpfCnpj.invalidFormat", "CPF/CNPJ inválido")
         }
 
@@ -68,7 +68,7 @@ class CustomerService {
         }
 
         if (!params.state?.trim()) {
-            customer.errors.rejectValue("address", "address.state.blank", "Estado é obrigatório")
+            customer.errors.rejectValue("address", "address.state.blank", "State cannot be empty")
         }
         return customer
     }
