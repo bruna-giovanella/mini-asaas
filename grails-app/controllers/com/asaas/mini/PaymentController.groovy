@@ -36,7 +36,7 @@ class PaymentController {
 
     def show() {
         try {
-            Long id = params.id as Long
+            Long id = params.long('id')
             Customer customer = getCustomerLogged()
             Payment payment = paymentService.get(id, customer)
 
