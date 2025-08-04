@@ -128,7 +128,7 @@ class PaymentService {
             throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
-        if (Payment.findByIdAndDeleted(id, true)) {
+        if (Payment.findByIdAndDeleted(id, false)) {
             throw new ValidationException("Apenas pagamentos deletados podem ser restaurados", payment.errors)
         }
 
@@ -139,6 +139,7 @@ class PaymentService {
         }
 
         payment.deleted = false
+        payment.markDirty('deleted')
         payment.save(failOnError: true)
     }
 }
