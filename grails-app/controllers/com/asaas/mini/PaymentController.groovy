@@ -66,7 +66,7 @@ class PaymentController {
         try {
             Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            Payment deletedPayment = paymentService.delete(id, customer)
+            paymentService.delete(id, customer)
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {

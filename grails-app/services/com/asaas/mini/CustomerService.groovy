@@ -141,20 +141,20 @@ class CustomerService {
         customer.save(failOnError:true)
     }
 
-//    private validateDelete(Customer customer) {
-//        List<Payment> activePayments = Payment.createCriteria().list {
-//            eq("deleted", false)
-//            eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
-//            payer {
-//                eq("customer", customer)
-//                eq("deleted", false)
-//            }
-//        }
-//
-//        if (activePayments) {
-//            throw new IllegalArgumentException("Existem pagamentos ativos")
-//        }
-//    }
+    private validateDelete(Customer customer) {
+        List<Payment> activePayments = Payment.createCriteria().list {
+            eq("deleted", false)
+            eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
+            payer {
+                eq("customer", customer)
+                eq("deleted", false)
+            }
+        }
+
+        if (activePayments) {
+            throw new IllegalArgumentException("Existem pagamentos ativos")
+        }
+    }
 
     public void restore(Long id) {
         Customer customer = Customer.findByIdAndDeleted(id, true)
