@@ -34,6 +34,23 @@ class PaymentController {
         }
     }
 
+    def show() {
+        try {
+            Long id = params.long('id')
+            Customer customer = getCustomerLogged()
+            Payment payment = paymentService.get(id, customer)
+
+            if (!payment) {
+                render(status: 404, text: "Payment not found")
+                return
+            }
+
+            respond payment
+        } catch (Exception e) {
+            render(status: 500, text: "Internal Server Error: ${e.message}")
+        }
+    }
+
     private Customer getCustomerLogged() {
         return Customer.get(1L)
     }

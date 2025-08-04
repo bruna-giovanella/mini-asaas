@@ -58,4 +58,24 @@ class PaymentService {
 
         return payment
     }
+
+    public Payment get(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID é obrigatório")
+        }
+
+        Long idParam = id
+
+        Payment payment = Payment.where {
+            id == idParam &&
+                    payer.customer == customer &&
+                    deleted == false
+        }.get()
+
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+        }
+
+        return payment
+    }
 }
