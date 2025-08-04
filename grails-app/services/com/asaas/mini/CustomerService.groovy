@@ -135,7 +135,6 @@ class CustomerService {
         if (!customer) {
             throw new IllegalArgumentException("Conta não encontrada")
         }
-
         validateDelete(customer)
         customer.deleted = true
         customer.markDirty('deleted')

@@ -61,7 +61,7 @@ class CustomerController {
         } catch (ValidationException validationException) {
             render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
