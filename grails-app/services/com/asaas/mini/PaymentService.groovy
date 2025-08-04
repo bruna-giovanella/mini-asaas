@@ -64,8 +64,10 @@ class PaymentService {
             throw new IllegalArgumentException("ID é obrigatório")
         }
 
+        Long idParam = id
+
         Payment payment = Payment.where {
-            this.id == id &&
+            id == idParam &&
                     payer.customer == customer &&
                     deleted == false
         }.get()
