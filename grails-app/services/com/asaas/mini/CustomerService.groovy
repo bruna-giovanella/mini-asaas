@@ -62,7 +62,10 @@ class CustomerService {
         Customer customer = new Customer()
 
         Customer existingCpfCnpj = Customer.where {
-            cpfCnpj == params.cpfCnpj && (id == null || this.id != id)
+            cpfCnpj == params.cpfCnpj
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingCpfCnpj) {
@@ -70,7 +73,10 @@ class CustomerService {
         }
 
         Customer existingEmail = Customer.where {
-            email == params.email && (id == null || this.id != id)
+            email == params.email
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingEmail) {
@@ -121,8 +127,11 @@ class CustomerService {
     }
 
     public void delete(Long id) {
-        Customer customer = Customer.findByIdAndDeleted(id, false)
+        if (!id) {
+            throw new IllegalArgumentException("ID é necessário")
+        }
 
+        Customer customer = Customer.findByIdAndDeleted(id, false)
         if (!customer) {
             throw new IllegalArgumentException("Conta não encontrada")
         }
@@ -133,8 +142,17 @@ class CustomerService {
     }
 
     private validateDelete(Customer customer) {
-        if (Payment.findByCustomerAndDeleted(customer, false)) {
-            throw new IllegalArgumentException("Conta possui pagamentos ativos")
+        List<Payment> activePayments = Payment.createCriteria().list {
+            eq("deleted", false)
+            eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
+            payer {
+                eq("customer", customer)
+                eq("deleted", false)
+            }
+        }
+
+        if (activePayments) {
+            throw new IllegalArgumentException("Existem pagamentos ativos")
         }
     }
 
