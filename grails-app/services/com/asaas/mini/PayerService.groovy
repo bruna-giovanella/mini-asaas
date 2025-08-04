@@ -80,4 +80,20 @@ class PayerService {
         }
         return payer
     }
+
+    public void delete(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado para este cliente")
+        }
+
+        payer.deleted = true
+        payer.markDirty('deleted')
+        payer.save(failOnError:true)
+    }
 }
