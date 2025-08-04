@@ -22,7 +22,7 @@ class CustomerController {
     def show() {
         try {
             Long id = params.long("id")
-            Customer customer = customerService.getCustomer(id)
+            Customer customer = customerService.get(id)
 
             if (!customer) {
                 render(status: 404, text: "Cliente não encontrado")
@@ -38,22 +38,22 @@ class CustomerController {
     def update() {
         try {
             Long id = params.long("id")
-            Customer customer = customerService.updateCustomer(id, params)
+            Customer customer = customerService.update(id, params)
             respond(customer, [status: 200])
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: e.message].toString())
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: e.errors.allErrors*.defaultMessage].toString())
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-            render(status: 500, text: "Internal Server Error: ${e.message}")
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
 
     def delete() {
         try {
             Long id = params.long("id")
-            customerService.deleteCustomer(id)
+            customerService.delete(id)
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -68,7 +68,7 @@ class CustomerController {
     def restore() {
         try {
             Long id = params.long("id")
-            customerService.restoreCustomer(id)
+            customerService.restore(id)
             render(status: 200)
 
         } catch (IllegalArgumentException illegalArgumentException) {
