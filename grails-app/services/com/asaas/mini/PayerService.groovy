@@ -81,6 +81,15 @@ class PayerService {
         return payer
     }
 
+    public Payer get(Long id, customer) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        return payer
+    }
+
     public void delete(Long id, Customer customer) {
         if (!id) {
             throw new IllegalArgumentException("O ID é obrigatório")
