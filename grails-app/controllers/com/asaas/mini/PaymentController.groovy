@@ -79,6 +79,6 @@ class PaymentController {
     }
 
     private Customer getCustomerLogged() {
-        return Customer.get(2L)
+        return Customer.get(1L)
     }
 }
