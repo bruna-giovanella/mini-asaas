@@ -64,7 +64,10 @@ class CustomerService {
         Customer customer = new Customer()
 
         Customer existingCpfCnpj = Customer.where {
-            cpfCnpj == params.cpfCnpj && (id == null || this.id != id)
+            cpfCnpj == params.cpfCnpj
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingCpfCnpj) {
@@ -72,7 +75,10 @@ class CustomerService {
         }
 
         Customer existingEmail = Customer.where {
-            email == params.email && (id == null || this.id != id)
+            email == params.email
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingEmail) {
@@ -124,7 +130,7 @@ class CustomerService {
 
     public void delete(Long id) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("ID é necessário")
         }
 
         Customer customer = Customer.findByIdAndDeleted(id, false)
@@ -165,7 +171,7 @@ class CustomerService {
         }
 
         if (activePayments) {
-            throw new IllegalArgumentException("Customer has active payments")
+            throw new IllegalArgumentException("Existem pagamentos ativos")
         }
     }
 
