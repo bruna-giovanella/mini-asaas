@@ -141,18 +141,16 @@ class CustomerService {
         validateDelete(customer)
 
         List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
-        payers.each { payer ->
+        for (Payer payer : payers) {
             payer.deleted = true
             payer.markDirty('deleted')
             payer.save(failOnError: true)
 
-            List<Payment> payments = Payment.findAllByPayerAndDeleted(payer, false)
-            payments.each { payment ->
-                payment.status = PaymentStatus.EXCLUIDA
-                payment.deleted = true
-                payment.markDirty('deleted')
-                payment.save(failOnError: true)
-            }
+
+            Payment.executeUpdate(
+                    "update Payment p set p.deleted = true where p.payer = :payer and p.deleted = false",
+                    [payer: payer]
+            )
         }
 
         customer.deleted = true

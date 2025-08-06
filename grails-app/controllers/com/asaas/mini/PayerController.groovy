@@ -77,11 +77,12 @@ class PayerController {
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            render(status: 400, contentType: 'application/json', text: [error: illegalArgumentException.message].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
+            render(status: 400, contentType: 'application/json', text: [errors: validationException.errors.allErrors*.defaultMessage].toString())
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            exception.printStackTrace() // mantém log no console
+            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
         }
     }
 

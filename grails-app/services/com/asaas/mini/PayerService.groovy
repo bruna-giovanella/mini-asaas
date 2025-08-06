@@ -155,13 +155,10 @@ class PayerService {
 
         validateDelete(payer)
 
-        List<Payment> payments = Payment.findAllByPayerAndDeleted(payer, false)
-        payments.each { payment ->
-            payment.status = PaymentStatus.EXCLUIDA
-            payment.deleted = true
-            payment.markDirty('deleted')
-            payment.save(failOnError: true)
-        }
+        Payment.executeUpdate(
+                "update Payment p set p.deleted = true where p.payer = :payer and p.deleted = false",
+                [payer: payer]
+        )
 
         payer.deleted = true
         payer.markDirty('deleted')
@@ -176,7 +173,7 @@ class PayerService {
         }
 
         if (activePayments) {
-            throw new IllegalArgumentException("Payer has pending payments")
+            throw new IllegalArgumentException("O pagador possui pagamentos pendentes")
         }
     }
 
