@@ -2,41 +2,49 @@ package com.asaas.mini
 
 import org.grails.datastore.mapping.validation.ValidationException
 
-class PayerController {
+class PaymentController {
 
     static responseFormats = ['json']
-    PayerService payerService
+
+    PaymentService paymentService
 
     def save() {
+        Customer customer = getCustomerLogged()
+
+        Long id = params.long("id")
+        if (!id) {
+            render(status: 400, contentType: 'application/json', text: [errors: ["ID do pagamento é obrigatório"]])
+            return
+        }
+
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+        if (!payer) {
+            render(status: 400, contentType: 'application/json', text: [errors: ["Pagador não encontrado"]])
+            return
+        }
+
         try {
-            Customer customer = getCustomerLogged()
-            Payer payer = payerService.save(params, customer)
-            respond(payer, [status: 201])
+            Payment payment = paymentService.save(params, payer)
+            respond(payment, [status: 201])
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: illegalArgumentException.message].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
-        catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: validationException.errors.allErrors*.defaultMessage].toString())
-        }
-        catch (Exception exception) {
-            exception.printStackTrace() // log para debug
-            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
-        }
-
     }
 
     def show() {
         try {
-            Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            Payer payer = payerService.get(id, customer)
+            Customer customer = getCustomerLogged()
+            Payment payment = paymentService.get(id, customer)
 
-            if (!payer) {
+            if (!payment) {
                 render(status: 404, text: "Pagador não encontrado")
                 return
             }
-            respond payer
+            respond payment
 
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
@@ -46,24 +54,9 @@ class PayerController {
     def list() {
         try {
             Customer customer = getCustomerLogged()
-            List<Payer> payerList = payerService.list(customer)
-            respond payerList
+            List<Payment> paymentList = paymentService.list(customer)
+            respond paymentList
 
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        }
-    }
-
-    def update() {
-        try {
-            Long id = params.long("id")
-            Payer payer = payerService.update(id, params)
-            respond(payer, [status: 200])
-
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
@@ -73,7 +66,7 @@ class PayerController {
         try {
             Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            payerService.delete(id, customer)
+            paymentService.delete(id, customer)
             render(status: 204)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -89,7 +82,7 @@ class PayerController {
         try {
             Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            payerService.restore(id, customer)
+            Payment restoredPayment = paymentService.restore(id, customer)
             render(status: 200)
 
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -104,5 +97,4 @@ class PayerController {
     private Customer getCustomerLogged() {
         return Customer.get(1L)
     }
-
 }

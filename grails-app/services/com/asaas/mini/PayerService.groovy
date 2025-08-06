@@ -7,7 +7,7 @@ import org.grails.datastore.mapping.validation.ValidationException
 class PayerService {
 
     public Payer save(Map params, Customer customer) {
-        Payer payerValidate = validateSave(params, customer)
+        Payer payerValidate = validateParams(params, customer)
 
         if (payerValidate.hasErrors()) {
             throw new ValidationException("Erro ao criar pagador: ", payerValidate.errors)
@@ -30,15 +30,77 @@ class PayerService {
         return payer.save(flush: true, failOnError: true)
     }
 
-    private Payer validateSave(Map params, Customer customer) {
-        Payer payer = new Payer()
+    public Payer get(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 
-        if (Payer.findByCpfCnpjAndCustomer(params.cpfCnpj, customer)) {
-            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ para este cliente")
+        return payer
+    }
+
+    public List<Payer> list(Customer customer) {
+        return Payer.findAllByCustomerAndDeleted(customer, false)
+    }
+
+    public Payer update(Long id, Map params) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
         }
 
-        if (Payer.findByEmailAndCustomer(params.email, customer)) {
-            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail para este cliente")
+        Payer payer = Payer.findByIdAndDeleted(id, false)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado")
+        }
+
+        Payer validatedPayer = validateParams(params, payer.customer, id)
+
+        if (validatedPayer.hasErrors()) {
+            throw new ValidationException("Erro ao atualizar pagador", validatedPayer.errors)
+        }
+
+        payer.name = params.name
+        payer.email = params.email
+        payer.contactNumber = params.contactNumber
+        payer.cpfCnpj = params.cpfCnpj
+
+        payer.address.cep = params.cep
+        payer.address.city = params.city
+        payer.address.state = params.state
+        payer.address.complement = params.complement
+
+        return payer.save(flush: true, failOnError: true)
+    }
+
+    private Payer validateParams(Map params, Customer customer, Long id = null) {
+        Payer payer = new Payer()
+
+        if (!customer || customer.deleted) {
+            payer.errors.rejectValue("customer", "customer.deleted", "A conta está excluída e não pode ter pagadores")
+            return payer
+        }
+
+        Payer existingCpfCnpj = Payer.where {
+            cpfCnpj == params.cpfCnpj
+            if (id) {
+                ne 'id', id
+            }
+        }.get()
+
+        if (existingCpfCnpj) {
+            payer.errors.rejectValue("cpfCnpj", "cpfCnpj.exists", "Já existe um pagador com este CPF/CNPJ")
+        }
+
+        Payer existingEmail = Payer.where {
+            email == params.email
+            if (id) {
+                ne 'id', id
+            }
+        }.get()
+
+        if (existingEmail) {
+            payer.errors.rejectValue("email", "email.exists", "Já existe um pagador com este e-mail")
         }
 
         if (!params.name?.trim()) {
@@ -70,14 +132,42 @@ class PayerService {
         if (!params.cep?.trim()) {
             payer.errors.rejectValue("address", "address.cep.blank", "O CEP é obrigatório")
         }
-
         if (!params.city?.trim()) {
             payer.errors.rejectValue("address", "address.city.blank", "A cidade é obrigatória")
         }
-
         if (!params.state?.trim()) {
             payer.errors.rejectValue("address", "address.state.blank", "O estado é obrigatório")
         }
+
         return payer
     }
+
+    public void delete(Long id, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado")
+        }
+
+        payer.deleted = true
+        payer.markDirty('deleted')
+        payer.save(failOnError:true)
+    }
+
+    public void restore(Long id, customer) {
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, true)
+
+        if (!payer) {
+            throw new IllegalArgumentException("Pagador não encontrado ou está ativo")
+        }
+
+        payer.deleted = false
+        payer.markDirty('deleted')
+        payer.save(failOnError: true)
+    }
+
 }
