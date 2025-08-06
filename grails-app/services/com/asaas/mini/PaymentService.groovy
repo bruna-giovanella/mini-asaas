@@ -32,7 +32,7 @@ class PaymentService {
         Payment payment = new Payment()
 
         if (!payer) {
-            payment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado ou não pertence ao cliente logado")
+            payment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado")
             return payment
         }
 
@@ -74,7 +74,7 @@ class PaymentService {
         }.get()
 
         if (!payment) {
-            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
         return payment
@@ -99,7 +99,7 @@ class PaymentService {
         }
 
         if (!payment) {
-            throw new IllegalArgumentException("Pagamento não encontrado para este cliente")
+            throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
         if (payment.status == PaymentStatus.RECEBIDA) {
@@ -113,5 +113,33 @@ class PaymentService {
         payment.deleted = true
         payment.markDirty('deleted')
         payment.save(failOnError:true)
+    }
+
+    public void restore(Long id, Customer customer) {
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", true)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado")
+        }
+
+        if (Payment.findByIdAndDeleted(id, false)) {
+            throw new ValidationException("Apenas pagamentos deletados podem ser restaurados", payment.errors)
+        }
+
+        if (payment.dueDate.isBefore(LocalDate.now())) {
+            payment.status = PaymentStatus.VENCIDA
+        } else {
+            payment.status = PaymentStatus.AGUARDANDO_PAGAMENTO
+        }
+
+        payment.deleted = false
+        payment.markDirty('deleted')
+        payment.save(failOnError: true)
     }
 }
