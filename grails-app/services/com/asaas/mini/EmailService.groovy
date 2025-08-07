@@ -1,14 +1,18 @@
 package com.asaas.mini
 
 import grails.gsp.PageRenderer
-import grails.plugins.mail.MailService
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.MimeMessageHelper
+import org.springframework.stereotype.Service
 
+import javax.mail.internet.MimeMessage
 import javax.transaction.Transactional
 
+@Service
 @Transactional
 class EmailService {
 
-    MailService mailService
+    JavaMailSender mailSender
     PageRenderer groovyPageRenderer
 
     void sendPaymentCreatedNotification(Payment payment) {
@@ -27,21 +31,28 @@ class EmailService {
         sendEmail(payment.payer.email, "Cobrança vencida", "/emails/paymentExpired", payment)
     }
 
-    private void sendEmail(String to, String subject, String templatePath, Payment payment) {
-        if (!to) {
+    private void sendEmail(String recipientEmail, String emailSubject, String templatePath, Payment payment) {
+        if (!recipientEmail) {
             log.warn("Pagador não possui email cadastrado")
             return
         }
 
-        String htmlBody = groovyPageRenderer.render(
-                template: templatePath,
-                model: [payment: payment]
-        )
+        try {
+            String htmlBody = groovyPageRenderer.render(
+                    template: templatePath,
+                    model: [payment: payment]
+            )
 
-        mailService.sendMail {
-            to to
-            subject subject
-            html htmlBody
+            MimeMessage message = mailSender.createMimeMessage()
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8")
+
+            helper.setTo(recipientEmail)
+            helper.setSubject(emailSubject)
+            helper.setText(htmlBody, true)
+
+            mailSender.send(message)
+        } catch (Exception e) {
+            log.error("Erro ao enviar email para $recipientEmail: ${e.message}", e)
         }
     }
 }

@@ -14,10 +14,6 @@ class PaymentService {
     public Payment save(Map params, Payer payer) {
         Payment payment = validateParams(params, payer)
 
-        if (payment.hasErrors()) {
-            throw new ValidationException("Erro ao criar pagamento", payment.errors)
-        }
-
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
         payment.payer = payer
@@ -129,12 +125,14 @@ class PaymentService {
             tempPayment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
         }
 
-        if (payment.hasErrors()) {
-            throw new ValidationException("Erro nos dados passados", payment.errors)
+        if (tempPayment.hasErrors()) {
+            throw new ValidationException("Erro nos dados passados", tempPayment.errors)
         }
 
-        return payment
-    }
+        if (payment != null) {
+            return payment
+        }
+        return new Payment()    }
 
     public Payment delete(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {

@@ -1,6 +1,6 @@
 <html>
 <head>
-    <g:render template="/emails/style"/>
+    <g:render template="emails/style"/>
 </head>
 <body>
     <div class="container" role="main" aria-label="Cobrança criada">

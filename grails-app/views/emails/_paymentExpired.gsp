@@ -1,13 +1,13 @@
 <html>
 <head>
-    <g:render template="/emails/style"/>
+    <g:render template="emails/style"/>
 </head>
 <body>
-<div class="container" role="main" aria-label="Cobrança excluída">
-    <h1>Cobrança Excluída ❌</h1>
+<div class="container" role="main" aria-label="Cobrança vencida">
+    <h1>Cobrança Vencida ⏰</h1>
     <p>Olá <span class="highlight">${payment.payer.name}</span>,</p>
-    <p>A cobrança no valor de <strong>R$ ${payment.value}</strong>, com vencimento para <strong>${payment.dueDate}</strong>, foi excluída conforme solicitado.</p>
-    <p>Se precisar de qualquer assistência, estamos à disposição.</p>
+    <p>A cobrança no valor de <strong>R$ ${payment.value}</strong>, com vencimento em <strong>${payment.dueDate}</strong>, está vencida.</p>
+    <p>Por favor, entre em contato para regularizar e evitar transtornos.</p>
     <div class="signature">
         Com carinho,<br>
         <strong>Equipe MiniAsaas</strong><br>
