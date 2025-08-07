@@ -1,6 +1,5 @@
 package com.asaas.mini
 
-import com.asaas.mini.PaymentService
 import grails.gorm.transactions.Transactional
 
 class UpdateOverduePaymentsJob {

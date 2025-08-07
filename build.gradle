@@ -62,7 +62,7 @@ dependencies {
     implementation 'org.quartz-scheduler:quartz:2.3.2'
     implementation "org.grails.plugins:spring-security-core:5.0.0"
     implementation "org.grails.plugins:spring-security-rest:3.0.0"
-    implementation "org.grails.plugins:mail:3.0.0"
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     profile "org.grails.profiles:web"
     runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "com.h2database:h2"
