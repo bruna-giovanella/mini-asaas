@@ -39,8 +39,10 @@ class PaymentService {
             throw new IllegalArgumentException("ID é obrigatório")
         }
 
+        Long idParam = id
+
         Payment payment = Payment.where {
-            this.id == id &&
+            id == idParam &&
                     payer.customer == customer &&
                     deleted == false
         }.get()
@@ -142,12 +144,17 @@ class PaymentService {
             throw new IllegalArgumentException("Pagamento não encontrado para essa conta")
         }
 
-        if (payment.status == PaymentStatus.RECEBIDA || Payment.findByIdAndDeleted(id, true)) {
-            throw new ValidationException("Não é possível a exclusão de pagamentos recebidos ou já excluidos", payment.errors)
+        if (payment.status == PaymentStatus.RECEBIDA) {
+            throw new ValidationException("Não é possível excluir pagamentos recebidos", payment.errors)
+        }
+
+        if (payment.deleted) {
+            throw new ValidationException("Pagamento já está excluído", payment.errors)
         }
 
         payment.deleted = true
-        payment.save(failOnError: true)
+        payment.markDirty('deleted')
+        payment.save(failOnError:true)
     }
 
     public void restore(Long id, Customer customer) {
@@ -163,7 +170,7 @@ class PaymentService {
             throw new IllegalArgumentException("Pagamento não encontrado")
         }
 
-        if (Payment.findByIdAndDeleted(id, true)) {
+        if (Payment.findByIdAndDeleted(id, false)) {
             throw new ValidationException("Apenas pagamentos deletados podem ser restaurados", payment.errors)
         }
 
@@ -174,6 +181,7 @@ class PaymentService {
         }
 
         payment.deleted = false
+        payment.markDirty('deleted')
         payment.save(failOnError: true)
     }
 
