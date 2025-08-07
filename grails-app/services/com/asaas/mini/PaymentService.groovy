@@ -14,7 +14,7 @@ class PaymentService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     Payment save(Map params, Payer payer) {
-        Payment payment = validateSave(params, payer)
+        Payment payment = validateParams(params, payer)
 
         if (payment.hasErrors()) {
             throw new ValidationException("Erro ao criar pagamento", payment.errors)
@@ -26,38 +26,6 @@ class PaymentService {
         payment.payer = payer
 
         payment.save(flush: true, failOnError: true)
-    }
-
-    private Payment validateSave(Map params, Payer payer) {
-        Payment payment = new Payment()
-
-        if (!payer) {
-            payment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado")
-            return payment
-        }
-
-        try {
-            BigDecimal value = new BigDecimal(params.value)
-            if (value <= 0) {
-                payment.errors.rejectValue("value", "value.invalid", "O valor deve ser positivo")
-            }
-        } catch (Exception exception) {
-            payment.errors.rejectValue("value", "value.invalid", "Valor inválido")
-        }
-
-        try {
-            PaymentType.valueOf(params.type.toUpperCase())
-        } catch (Exception exception) {
-            payment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
-        }
-
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException exception) {
-            payment.errors.rejectValue("dueDate", "dueDate.invalid", "Formato de data de vencimento inválido. Formato esperado: dd/MM/yyyy")
-        }
-
-        return payment
     }
 
     public Payment get(Long id, Customer customer) {
@@ -87,6 +55,67 @@ class PaymentService {
                 eq("customer", customer)
             }
         }
+    }
+
+    public Payment update(Long id, Map params, Customer customer) {
+        if (!id) {
+            throw new IllegalArgumentException("ID is required")
+        }
+
+        Payment payment = Payment.createCriteria().get {
+            eq("id", id)
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+        }
+
+        if (!payment) {
+            throw new IllegalArgumentException("Pagamento não encontrado")
+        }
+
+        validateParams(params, null, payment)
+
+        payment.value = new BigDecimal(params.value)
+        payment.type = PaymentType.valueOf(params.type.toUpperCase())
+        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
+
+        return payment.save(flush: true, failOnError: true)
+    }
+
+    private Payment validateParams(Map params, Payer payer = null, Payment payment = null) {
+        Payment tempPayment = new Payment()
+
+        if (payment && payment.status != PaymentStatus.AGUARDANDO_PAGAMENTO) {
+            tempPayment.errors.rejectValue("status", "status.invalid", "Somente pagamentos pendentes podem ser atualizados")
+        }
+
+        if (!payment && !payer) {
+            tempPayment.errors.rejectValue("payer", "payer.invalid", "Pagador não encontrado")
+        }
+
+        try {
+            BigDecimal value = new BigDecimal(params.value)
+            if (value <= 0) {
+                tempPayment.errors.rejectValue("value", "value.invalid", "O valor deve ser positivo")
+            }
+        } catch (Exception exception) {
+            tempPayment.errors.rejectValue("value", "value.invalid", "Valor inválido")
+        }
+
+        try {
+            PaymentType.valueOf(params.type.toUpperCase())
+        } catch (Exception exception) {
+            tempPayment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
+        }
+
+        try {
+            LocalDate.parse(params.dueDate, DATE_FORMATTER)
+        } catch (DateTimeParseException dateTimeParseException) {
+            tempPayment.errors.rejectValue("dueDate", "dueDate.invalid", "Formato de data de vencimento inválido. Formato esperado: dd/MM/yyyy")
+        }
+
+        return tempPayment
     }
 
     public void delete(Long id, Customer customer) {
