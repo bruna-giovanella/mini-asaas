@@ -2,6 +2,8 @@ package com.asaas.mini
 
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
+import com.asaas.mini.enums.PaymentStatus
+
 
 @Transactional
 class CustomerService {
@@ -135,7 +137,22 @@ class CustomerService {
         if (!customer) {
             throw new IllegalArgumentException("Conta não encontrada")
         }
+
         validateDelete(customer)
+
+        List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
+        for (Payer payer : payers) {
+            payer.deleted = true
+            payer.markDirty('deleted')
+            payer.save(failOnError: true)
+
+
+            Payment.executeUpdate(
+                    "update Payment p set p.deleted = true where p.payer = :payer and p.deleted = false",
+                    [payer: payer]
+            )
+        }
+
         customer.deleted = true
         customer.markDirty('deleted')
         customer.save(failOnError:true)
