@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 
@@ -148,14 +149,32 @@ class PayerService {
         }
 
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
-
         if (!payer) {
             throw new IllegalArgumentException("Pagador não encontrado")
         }
 
+        validateDelete(payer)
+
+        Payment.executeUpdate(
+                "update Payment p set p.deleted = true where p.payer = :payer and p.deleted = false",
+                [payer: payer]
+        )
+
         payer.deleted = true
         payer.markDirty('deleted')
         payer.save(failOnError:true)
+    }
+
+    private validateDelete(Payer payer) {
+        List<Payment> activePayments = Payment.createCriteria().list {
+            eq("deleted", false)
+            eq("status", PaymentStatus.AGUARDANDO_PAGAMENTO)
+            eq("payer", payer)
+        }
+
+        if (activePayments) {
+            throw new IllegalArgumentException("O pagador possui pagamentos pendentes")
+        }
     }
 
     public void restore(Long id, customer) {
