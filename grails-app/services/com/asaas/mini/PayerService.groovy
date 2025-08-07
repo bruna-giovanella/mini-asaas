@@ -8,7 +8,7 @@ import org.grails.datastore.mapping.validation.ValidationException
 class PayerService {
 
     public Payer save(Map params, Customer customer) {
-        Payer payerValidate = validateSave(params, customer)
+        Payer payerValidate = validateParams(params, customer)
 
         if (payerValidate.hasErrors()) {
             throw new ValidationException("Erro ao criar pagador: ", payerValidate.errors)
@@ -83,7 +83,10 @@ class PayerService {
         }
 
         Payer existingCpfCnpj = Payer.where {
-            cpfCnpj == params.cpfCnpj && customer == customer && (id == null || this.id != id)
+            cpfCnpj == params.cpfCnpj
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingCpfCnpj) {
@@ -91,7 +94,10 @@ class PayerService {
         }
 
         Payer existingEmail = Payer.where {
-            email == params.email && customer == customer && (id == null || this.id != id)
+            email == params.email
+            if (id) {
+                ne 'id', id
+            }
         }.get()
 
         if (existingEmail) {
@@ -149,13 +155,10 @@ class PayerService {
 
         validateDelete(payer)
 
-        List<Payment> payments = Payment.findAllByPayerAndDeleted(payer, false)
-        payments.each { payment ->
-            payment.status = PaymentStatus.EXCLUIDA
-            payment.deleted = true
-            payment.markDirty('deleted')
-            payment.save(failOnError: true)
-        }
+        Payment.executeUpdate(
+                "update Payment p set p.deleted = true where p.payer = :payer and p.deleted = false",
+                [payer: payer]
+        )
 
         payer.deleted = true
         payer.markDirty('deleted')
@@ -170,7 +173,7 @@ class PayerService {
         }
 
         if (activePayments) {
-            throw new IllegalArgumentException("Payer has pending payments")
+            throw new IllegalArgumentException("O pagador possui pagamentos pendentes")
         }
     }
 

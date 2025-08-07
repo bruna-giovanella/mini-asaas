@@ -13,11 +13,17 @@ class PayerController {
             Payer payer = payerService.save(params, customer)
             respond(payer, [status: 201])
 
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: illegalArgumentException.message].toString())
         }
+        catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: validationException.errors.allErrors*.defaultMessage].toString())
+        }
+        catch (Exception exception) {
+            exception.printStackTrace() // log para debug
+            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
+        }
+
     }
 
     def show() {
@@ -73,7 +79,7 @@ class PayerController {
         } catch (IllegalArgumentException illegalArgumentException) {
             render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
