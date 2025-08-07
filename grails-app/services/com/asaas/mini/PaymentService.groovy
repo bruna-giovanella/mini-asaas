@@ -5,15 +5,11 @@ import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 @Transactional
 class PaymentService {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-    Payment save(Map params, Payer payer) {
+    public Payment save(Map params, Payer payer) {
         Payment payment = validateParams(params, payer)
 
         if (payment.hasErrors()) {
@@ -22,10 +18,20 @@ class PaymentService {
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
         payment.payer = payer
 
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
+
         payment.save(flush: true, failOnError: true)
+        return payment
     }
 
     public Payment get(Long id, Customer customer) {
@@ -78,7 +84,16 @@ class PaymentService {
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
+
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
 
         return payment.save(flush: true, failOnError: true)
     }
@@ -109,13 +124,11 @@ class PaymentService {
             tempPayment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
         }
 
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException dateTimeParseException) {
-            tempPayment.errors.rejectValue("dueDate", "dueDate.invalid", "Formato de data de vencimento inválido. Formato esperado: dd/MM/yyyy")
+        if (payment.hasErrors()) {
+            throw new ValidationException("Erro nos dados passados", payment.errors)
         }
 
-        return tempPayment
+        return payment
     }
 
     public void delete(Long id, Customer customer) {
@@ -195,5 +208,20 @@ class PaymentService {
         payment.save(flush: true)
 
         return payment
+    }
+
+    public void markOverduePayments() {
+        LocalDate today = LocalDate.now()
+
+        List<Payment> paymentsToMarkOverdue = Payment.where {
+            status == PaymentStatus.AGUARDANDO_PAGAMENTO &&
+                    dueDate < today &&
+                    deleted == false
+        }.list()
+
+        paymentsToMarkOverdue.each { payment ->
+            payment.status = PaymentStatus.VENCIDA
+            payment.save(flush: true)
+        }
     }
 }
