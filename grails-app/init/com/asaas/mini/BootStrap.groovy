@@ -5,16 +5,14 @@ import com.asaas.mini.auth.Role
 class BootStrap {
 
     def init = { servletContext ->
-
-        String[] roles = ['ROLE_ADMIN', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
-
-        for (String authority : roles) {
-            if (!Role.findByAuthority(authority)) {
-                new Role(authority: authority).save(flush: true)
+        Role.withTransaction { status ->
+            if (Role.count() == 0) {
+                new Role(authority: 'ROLE_ADMIN').save(flush: true, failOnError: true)
+                new Role(authority: 'ROLE_FINANCEIRO').save(flush: true, failOnError: true)
+                new Role(authority: 'ROLE_VENDEDOR').save(flush: true, failOnError: true)
             }
         }
-
     }
-
-    def destroy = {}
+    def destroy = {
+    }
 }
