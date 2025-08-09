@@ -1,5 +1,7 @@
 package com.asaas.mini.auth
 
+import com.asaas.mini.Customer
+
 class User {
     String username
 
@@ -12,6 +14,8 @@ class User {
     boolean accountLocked
 
     boolean passwordExpired
+
+    Customer customer
 
     static constraints = {
         username blank: false, unique: true
