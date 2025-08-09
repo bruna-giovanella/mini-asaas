@@ -1,5 +1,6 @@
 package com.asaas.mini
 
+import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
@@ -7,6 +8,7 @@ class CustomerController {
     static responseFormats = ['json']
     CustomerService customerService
 
+    @Secured('permitAll')
     def save() {
         try {
             Customer customer = customerService.save(params)
@@ -19,6 +21,7 @@ class CustomerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         try {
             Long id = params.long("id")
@@ -35,6 +38,7 @@ class CustomerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR'])
     def update() {
         try {
             Long id = params.long("id")
@@ -50,6 +54,7 @@ class CustomerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR'])
     def delete() {
         try {
             Long id = params.long("id")
@@ -65,6 +70,7 @@ class CustomerController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR'])
     def restore() {
         try {
             Long id = params.long("id")
