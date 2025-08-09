@@ -1,4 +1,4 @@
-package com.asaas.mini
+package com.asaas.mini.auth
 
 class Role implements Serializable {
     String authority

@@ -1,6 +1,4 @@
-package com.asaas.mini
-
-import javax.swing.SpringLayout.Constraints
+package com.asaas.mini.auth
 
 class User {
     String username
