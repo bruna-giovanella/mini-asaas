@@ -24,6 +24,8 @@ class UserService {
             UserRole.create(user, role)
         }
 
+        return user
+
     }
 
 }
