@@ -6,8 +6,6 @@ import grails.plugin.springsecurity.annotation.Secured
 
 class PaymentController {
 
-    static responseFormats = ['json']
-
     PaymentService paymentService
     SpringSecurityService springSecurityService
 
