@@ -39,7 +39,7 @@ class UserController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR'])
     def delete() {
         try {
             Customer customer = getCustomerLogged()
