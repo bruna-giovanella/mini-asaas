@@ -57,7 +57,7 @@ class UserController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR'])
     def restore() {
         try {
             Customer customer = getCustomerLogged()
