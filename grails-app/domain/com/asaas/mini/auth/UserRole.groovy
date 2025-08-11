@@ -1,11 +1,13 @@
 package com.asaas.mini.auth
 
-class UserRole implements Serializable {
+import com.asaas.mini.utils.BaseEntity
+
+class UserRole extends BaseEntity implements Serializable {
     User user
 
     Role role
 
-    static maping = {
+    static mapping = {
         id composite: ['role', 'user']
         version false
     }

@@ -35,8 +35,8 @@ class CustomerService {
         customer.cpfCnpj = params.cpfCnpj
         customer.address = address
 
-        customer.save(flush: true, failOnError: true)
         createFirstAdminUser(customer, params)
+        customer.save(flush: true, failOnError: true)
 
         return customer
     }

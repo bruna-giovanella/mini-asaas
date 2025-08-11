@@ -1,8 +1,9 @@
 package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
+import com.asaas.mini.utils.BaseEntity
 
-class User {
+class User extends BaseEntity {
     String username
 
     String password
