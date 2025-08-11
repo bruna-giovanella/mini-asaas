@@ -1,12 +1,20 @@
 package com.asaas.mini
 
+import com.asaas.mini.auth.Role
+import com.asaas.mini.auth.User
+import com.asaas.mini.auth.UserRole
+import com.asaas.mini.auth.UserService
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import com.asaas.mini.enums.PaymentStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 
 
 @Transactional
 class CustomerService {
+
+    PasswordEncoder passwordEncoder
+    UserService userService
 
     public Customer save(Map params) {
         Customer validateCustomer = validateParams(params)
@@ -27,8 +35,41 @@ class CustomerService {
         customer.cpfCnpj = params.cpfCnpj
         customer.address = address
 
-        return customer.save(flush: true, failOnError: true)
+        createFirstAdminUser(customer, params)
+        customer.save(flush: true, failOnError: true)
+
+        return customer
     }
+
+    private void createFirstAdminUser(Customer customer, Map params) {
+        if (!params.adminEmail?.trim()) {
+            throw new IllegalArgumentException("Email do usuário é obrigatório")
+        }
+        if (!params.adminPassword?.trim()) {
+            throw new IllegalArgumentException("Senha do usuário é obrigatória")
+        }
+
+        String adminEmail = params.adminEmail
+        String rawPassword = params.adminPassword
+
+        User adminUser = new User();
+        adminUser.username = adminEmail
+        adminUser.password = passwordEncoder.encode(rawPassword)
+        adminUser.customer = customer
+        adminUser.enabled = true
+        adminUser.accountExpired = false
+        adminUser.accountLocked = false
+        adminUser.passwordExpired = false
+        adminUser.save(flush: true, failOnError: true)
+
+        Role adminRole = Role.findByAuthority('ROLE_ADMINISTRADOR')
+        if (!adminRole) {
+            adminRole = new Role(authority: 'ROLE_ADMINISTRADOR').save(flush: true, failOnError: true)
+        }
+
+        UserRole.create(adminUser, adminRole, true)
+    }
+
 
     public Customer update(Long id, Map params) {
         if (!id) {
