@@ -1,6 +1,9 @@
 package com.asaas.mini.utils
 
-class BaseEntity {
+import javax.persistence.MappedSuperclass
+
+@MappedSuperclass
+abstract class BaseEntity {
     Date dateCreated
 
     Date lastUpdated
@@ -8,8 +11,24 @@ class BaseEntity {
     Boolean deleted = false
 
     static constraints = {
+        dateCreated nullable: true
         lastUpdated nullable: true
+        deleted nullable: false
     }
+
+    def beforeInsert() {
+        if (deleted == null) {
+            deleted = false
+        }
+        if (!dateCreated) {
+            dateCreated = new Date()
+        }
+    }
+
+    def beforeUpdate() {
+        lastUpdated = new Date()
+    }
+
 
     static mapping = {
         deleted column: 'deleted', sqlType: 'tinyint(1)', defaultValue: 0

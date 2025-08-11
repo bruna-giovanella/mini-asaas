@@ -5,27 +5,32 @@ import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.validation.ValidationException
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 @Transactional
 class PaymentService {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    EmailService emailService
 
-    Payment save(Map params, Payer payer) {
+    public Payment save(Map params, Payer payer) {
         Payment payment = validateParams(params, payer)
-
-        if (payment.hasErrors()) {
-            throw new ValidationException("Erro ao criar pagamento", payment.errors)
-        }
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
         payment.payer = payer
 
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
+
         payment.save(flush: true, failOnError: true)
+        emailService.sendPaymentCreatedNotification(payment)
+        return payment
     }
 
     public Payment get(Long id, Customer customer) {
@@ -78,9 +83,20 @@ class PaymentService {
 
         payment.value = new BigDecimal(params.value)
         payment.type = PaymentType.valueOf(params.type.toUpperCase())
-        payment.dueDate = LocalDate.parse(params.dueDate, DATE_FORMATTER)
 
-        return payment.save(flush: true, failOnError: true)
+        switch (payment.type) {
+            case PaymentType.PIX:
+                payment.dueDate = LocalDate.now().plusDays(1)
+                break
+            case PaymentType.CARTAO:
+            case PaymentType.BOLETO:
+                payment.dueDate = LocalDate.now().plusDays(30)
+                break
+        }
+
+        payment.save(flush: true, failOnError: true)
+        emailService.sendPaymentCreatedNotification(payment)
+        return payment
     }
 
     private Payment validateParams(Map params, Payer payer = null, Payment payment = null) {
@@ -109,16 +125,16 @@ class PaymentService {
             tempPayment.errors.rejectValue("type", "type.invalid", "Tipo de pagamento inválido")
         }
 
-        try {
-            LocalDate.parse(params.dueDate, DATE_FORMATTER)
-        } catch (DateTimeParseException dateTimeParseException) {
-            tempPayment.errors.rejectValue("dueDate", "dueDate.invalid", "Formato de data de vencimento inválido. Formato esperado: dd/MM/yyyy")
+        if (tempPayment.hasErrors()) {
+            throw new ValidationException("Erro nos dados passados", tempPayment.errors)
         }
 
-        return tempPayment
-    }
+        if (payment != null) {
+            return payment
+        }
+        return new Payment()    }
 
-    public void delete(Long id, Customer customer) {
+    public Payment delete(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)
             eq("deleted", false)
@@ -142,9 +158,12 @@ class PaymentService {
         payment.deleted = true
         payment.markDirty('deleted')
         payment.save(failOnError:true)
+
+        emailService.sendPaymentDeletedNotification(payment)
+        return payment
     }
 
-    public void restore(Long id, Customer customer) {
+    public Payment restore(Long id, Customer customer) {
         Payment payment = Payment.createCriteria().get {
             eq("id", id)
             eq("deleted", true)
@@ -170,6 +189,9 @@ class PaymentService {
         payment.deleted = false
         payment.markDirty('deleted')
         payment.save(failOnError: true)
+
+        emailService.sendPaymentCreatedNotification(payment)
+        return payment
     }
 
     public Payment confirmInCash(Long id, Customer customer) {
@@ -194,6 +216,23 @@ class PaymentService {
         payment.confirmedInCash = true
         payment.save(flush: true)
 
+        emailService.sendPaymentPaidNotification(payment)
         return payment
+    }
+
+    public void markOverduePayments() {
+        LocalDate today = LocalDate.now()
+
+        List<Payment> paymentsToMarkOverdue = Payment.where {
+            status == PaymentStatus.AGUARDANDO_PAGAMENTO &&
+                    dueDate < today &&
+                    deleted == false
+        }.list()
+
+        paymentsToMarkOverdue.each { payment ->
+            payment.status = PaymentStatus.VENCIDA
+            payment.save(flush: true)
+            emailService.sendPaymentExpiredNotification(payment)
+        }
     }
 }
