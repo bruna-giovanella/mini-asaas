@@ -33,7 +33,7 @@ class PayerService {
 
     public Payer get(Long id, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("O ID é obrigatório")
         }
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 

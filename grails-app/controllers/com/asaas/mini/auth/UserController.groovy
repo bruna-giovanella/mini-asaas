@@ -1,6 +1,7 @@
 package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
+import com.asaas.mini.Payer
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
@@ -71,6 +72,24 @@ class UserController {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
             log.error("Erro ao deletar usuário", exception)
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
+    @Secured('permitAll')
+    def show() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.long("id")
+            User user = userService.get(customer, id)
+
+            if (!user) {
+                render(status: 404, text: "Usuário não encontrado")
+                return
+            }
+            respond user
+
+        } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }
