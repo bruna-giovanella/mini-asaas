@@ -3,6 +3,7 @@ package com.asaas.mini.auth
 import com.asaas.mini.Customer
 import com.asaas.mini.Payer
 import grails.gorm.transactions.Transactional
+import org.grails.datastore.mapping.validation.ValidationException
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Transactional
@@ -48,6 +49,33 @@ class UserService {
         return User.findAllByCustomerAndDeleted(customer, false)
     }
 
+    public User update(String username, String password, String role, Customer customer, Long id) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+
+        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
+        if (!user) {
+            throw new IllegalArgumentException("Usuário não encontrado")
+        }
+
+        user.username = username
+        if (password) {
+            user.password = password
+        }
+
+
+        Role roleObj = Role.findByAuthority(role)
+        if (!roleObj) {
+            throw new IllegalArgumentException("Role '${role}' não encontrada")
+        }
+
+        UserRole.findAllByUser(user)*.delete(flush: true)
+        UserRole.create(user, roleObj, true)
+
+        return user.save(flush: true, failOnError: true)
+    }
+
     public void delete(Customer customer, Long id) {
         if (!id) {
             throw new IllegalArgumentException("O ID é obrigatório")
@@ -61,6 +89,7 @@ class UserService {
 
 
         user.deleted = true
+        user.enabled = false
         user.markDirty('deleted')
         user.save(failOnError:true)
 
@@ -83,6 +112,7 @@ class UserService {
 
 
         user.deleted = false
+        user.enabled = true
         user.markDirty('deleted')
         user.save(failOnError:true)
 

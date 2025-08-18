@@ -16,16 +16,10 @@ class UserController {
             String username = params.username
             String password = params.password
             String role = params.role
-            Long customerId = params.long('customerId')
+            Customer customer = getCustomerLogged()
 
             if (!username || !password || !role || !customerId) {
                 render(status: 400, text: [error: "Parâmetros obrigatórios ausentes"].toString())
-                return
-            }
-
-            Customer customer = Customer.findById(customerId)
-            if (!customer) {
-                render(status: 404, text: [error: "Customer não encontrado"].toString())
                 return
             }
 
@@ -65,6 +59,32 @@ class UserController {
             List<User> userList = userService.list(customer)
             respond userList
 
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
+    @Secured('permitAll')
+    def update() {
+        try {
+            Customer customer = getCustomerLogged()
+            String username = params.username
+            String password = params.password   // pode vir vazio
+            String role = params.role
+
+            if (!username || !role || !customer) {
+                render(status: 400, contentType: 'application/json', text: [error: "Parâmetros obrigatórios ausentes"].toString())
+                return
+            }
+
+            Long id = params.long("id")
+            User user = userService.update(username, password, role, customer, id)
+            respond(user, [status: 200])
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
