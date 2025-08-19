@@ -5,38 +5,38 @@ import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
 
-    static responseFormats = ['json']
     CustomerService customerService
+
+    @Secured('permitAll')
+    def create() {
+        render(view: "create")
+    }
 
     @Secured('permitAll')
     def save() {
         try {
             Customer customer = customerService.save(params)
-            respond(customer, [status: 201])
+            flash.message = "Cliente criado com sucesso"
+            redirect(action: "show", id: customer.id)
 
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro de validação: ${validationException.message}"
+            render(view: "create", model: [customer: params])
         } catch (Exception exception) {
-            log.error("Erro ao salvar cliente", exception)
-            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
+            flash.message = "Erro inesperado: ${exception.message}"
+            render(view: "create", model: [customer: params])
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    @Secured('permitAll')
     def show() {
-        try {
-            Long id = params.long("id")
-            Customer customer = customerService.get(id)
-
-            if (!customer) {
-                render(status: 404, text: "Cliente não encontrado")
-                return
-            }
-            respond customer
-
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        Customer customer = customerService.get(params.id as Long)
+        if (!customer) {
+            flash.message = "Cliente não encontrado"
+            redirect(action: "index")
+            return
         }
+        render(view: "show", model: [customer: customer])
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
