@@ -69,7 +69,7 @@ class UserController {
         try {
             Customer customer = getCustomerLogged()
             String username = params.username
-            String password = params.password   // pode vir vazio
+            String password = params.password
             String role = params.role
 
             if (!username || !role || !customer) {

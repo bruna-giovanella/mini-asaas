@@ -3,6 +3,7 @@ package com.asaas.mini.auth
 import com.asaas.mini.Customer
 import com.asaas.mini.Payer
 import grails.gorm.transactions.Transactional
+import grails.plugin.springsecurity.SpringSecurityService
 import org.grails.datastore.mapping.validation.ValidationException
 import org.springframework.security.crypto.password.PasswordEncoder
 
@@ -61,7 +62,7 @@ class UserService {
 
         user.username = username
         if (password) {
-            user.password = password
+            user.password = passwordEncoder.encode(password)
         }
 
 
