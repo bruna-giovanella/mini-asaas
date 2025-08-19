@@ -16,24 +16,24 @@ class CustomerController {
     def save() {
         try {
             Customer customer = customerService.save(params)
-            flash.message = "Cliente criado com sucesso"
+            flash.message = "Conta criada com sucesso"
             redirect(action: "show", id: customer.id)
 
         } catch (ValidationException validationException) {
-            flash.message = "Erro de validação: ${validationException.message}"
+            flash.message = "Erro ao salvar conta"
             render(view: "create", model: [customer: params])
         } catch (Exception exception) {
-            flash.message = "Erro inesperado: ${exception.message}"
+            flash.message = "Um erro inesperado aconteceu"
             render(view: "create", model: [customer: params])
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show() {
         Customer customer = customerService.get(params.id as Long)
         if (!customer) {
-            flash.message = "Cliente não encontrado"
-            redirect(action: "index")
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
             return
         }
         render(view: "show", model: [customer: customer])
