@@ -40,10 +40,10 @@
 
     <hr/>
 
-    <g:if test="${!customer.deleted}">
+    <g:if test="${!customer?.deleted}">
         <g:form controller="customer" action="delete" method="post">
             <g:hiddenField name="id" value="${customer?.id}"/>
-            <g:submitButton name="delete" value="Excluir Conta"/>
+            <g:submitButton name="delete" class="btn btn-danger" value="Excluir Conta"/>
         </g:form>
     </g:if>
 

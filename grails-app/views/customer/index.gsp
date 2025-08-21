@@ -7,6 +7,11 @@
 <body>
 
 <div class="sidebar">
+
+    <h1>Bem-vindo, ${customer?.name}</h1>
+    <p><strong>Email:</strong> ${customer?.email}</p>
+    <p><strong>CPF/CNPJ:</strong> ${customer?.cpfCnpj}</p>
+
     <h3>Menu</h3>
     <g:link class="btn" controller="customer" action="show" id="${customer.id}">Visualizar</g:link>
     <g:link class="btn" controller="customer" action="edit" id="${customer.id}">Editar</g:link>
@@ -35,9 +40,6 @@
         <div class="alert">⚠️ Sua conta está deletada. Restaure para voltar a usá-la.</div>
     </g:if>
 
-    <h1>Bem-vindo, ${customer?.name}</h1>
-    <p><strong>Email:</strong> ${customer?.email}</p>
-    <p><strong>CPF/CNPJ:</strong> ${customer?.cpfCnpj}</p>
 </div>
 
 </body>

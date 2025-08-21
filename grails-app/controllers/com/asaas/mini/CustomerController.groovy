@@ -86,7 +86,7 @@ class CustomerController {
         try {
             customerService.delete(id)
             flash.message = "Conta removida com sucesso"
-            redirect(action: "index")
+            redirect(action: "index", id: id)
 
         } catch (IllegalArgumentException illegalArgumentException) {
             flash.message = "Erro ao excluir conta"
@@ -102,7 +102,7 @@ class CustomerController {
         try {
             customerService.restore(id)
             flash.message = "Conta restaurada com sucesso"
-            redirect(action: "show", id: id)
+            redirect(action: "index", id: id)
 
         } catch (IllegalArgumentException illegalArgumentException) {
             flash.message = "Conta não encontrada"
