@@ -55,6 +55,6 @@
     </g:if>
 
     <br/>
-    <g:link action="show" id="${customer?.id}">Voltar</g:link>
+    <g:link action="index" id="${customer?.id}">Voltar</g:link>
 </body>
 </html>

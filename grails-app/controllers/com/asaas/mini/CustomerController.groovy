@@ -17,7 +17,7 @@ class CustomerController {
         try {
             Customer customer = customerService.save(params)
             flash.message = "Conta criada com sucesso"
-            redirect(action: "show", id: customer.id)
+            redirect(action: "index", id: customer.id)
 
         } catch (ValidationException validationException) {
             flash.message = "Erro ao salvar conta"
@@ -28,7 +28,18 @@ class CustomerController {
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    @Secured('permitAll')
+    def index(Long id) {
+        Customer customer = customerService.get(id);
+        if (!customer) {
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
+            return
+        }
+        render(view: "index", model: [customer: customer])
+    }
+
+    @Secured('permitAll')
     def show(Long id) {
         Customer customer = customerService.get(id)
         if (!customer) {
@@ -39,7 +50,7 @@ class CustomerController {
         render(view: "show", model: [customer: customer])
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured('permitAll')
     def edit(Long id) {
         Customer customer = customerService.get(id)
         if (!customer) {
@@ -50,13 +61,13 @@ class CustomerController {
         render(view: "edit", model: [customer: customer])
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured('permitAll')
     def update() {
         try {
             Long id = params.long("id")
             Customer customer = customerService.update(id, params)
             flash.message = "Conta atualizada com sucesso"
-            redirect(action: "show", id: customer.id)
+            redirect(action: "index", id: customer.id)
 
         } catch (ValidationException validationException) {
             flash.message = "Erro ao atualizar conta"
@@ -70,12 +81,12 @@ class CustomerController {
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured('permitAll')
     def delete(Long id) {
         try {
             customerService.delete(id)
             flash.message = "Conta removida com sucesso"
-            redirect(action: "create")
+            redirect(action: "index")
 
         } catch (IllegalArgumentException illegalArgumentException) {
             flash.message = "Erro ao excluir conta"
@@ -86,7 +97,7 @@ class CustomerController {
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured('permitAll')
     def restore(Long id) {
         try {
             customerService.restore(id)

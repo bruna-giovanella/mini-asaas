@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Detalhes do Cliente</title>
+    <title>Detalhes</title>
 </head>
 <body>
 
@@ -24,7 +24,7 @@
 
 <p>
     <g:link action="edit" id="${customer.id}">Editar</g:link> |
-    <g:link action="index">Voltar</g:link>
+    <g:link action="index" id="${customer.id}">Voltar</g:link>
 </p>
 
 </body>
