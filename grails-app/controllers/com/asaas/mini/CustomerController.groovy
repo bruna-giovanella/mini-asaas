@@ -28,7 +28,7 @@ class CustomerController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index(Long id) {
         Customer customer = customerService.get(id);
         if (!customer) {
@@ -39,7 +39,7 @@ class CustomerController {
         render(view: "index", model: [customer: customer])
     }
 
-    @Secured('permitAll')
+    @Secured('ROLE_ADMINISTRADOR')
     def show(Long id) {
         Customer customer = customerService.get(id)
         if (!customer) {
@@ -50,7 +50,7 @@ class CustomerController {
         render(view: "show", model: [customer: customer])
     }
 
-    @Secured('permitAll')
+    @Secured('ROLE_ADMINISTRADOR')
     def edit(Long id) {
         Customer customer = customerService.get(id)
         if (!customer) {
@@ -61,7 +61,7 @@ class CustomerController {
         render(view: "edit", model: [customer: customer])
     }
 
-    @Secured('permitAll')
+    @Secured('ROLE_ADMINISTRADOR')
     def update() {
         try {
             Long id = params.long("id")
@@ -81,7 +81,7 @@ class CustomerController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured('ROLE_ADMINISTRADOR')
     def delete(Long id) {
         try {
             customerService.delete(id)
@@ -97,7 +97,7 @@ class CustomerController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured('ROLE_ADMINISTRADOR')
     def restore(Long id) {
         try {
             customerService.restore(id)
