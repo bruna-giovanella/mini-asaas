@@ -39,7 +39,7 @@ class CustomerController {
         render(view: "index", model: [customer: customer])
     }
 
-    @Secured('ROLE_ADMINISTRADOR')
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show(Long id) {
         Customer customer = customerService.get(id)
         if (!customer) {
