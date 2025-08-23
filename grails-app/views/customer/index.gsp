@@ -15,6 +15,7 @@
     <h3>Menu</h3>
     <g:link class="btn" controller="customer" action="show" id="${customer.id}">Visualizar</g:link>
     <g:link class="btn" controller="customer" action="edit" id="${customer.id}">Editar</g:link>
+    <g:link class="btn" controller="payer" action="index">Pagadores</g:link>
 
     <g:if test="${customer?.deleted}">
         <g:form controller="customer" action="restore" method="post">
