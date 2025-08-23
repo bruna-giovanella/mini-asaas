@@ -11,16 +11,14 @@ class PayerController {
         return Customer.get(7L)
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index() {
         Customer customer = getCustomerLogged()
         List<Payer> payerList = payerService.list(customer);
         render(view: "index", model: [payerList: payerList, customer: customer])
     }
-    
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show(Long id) {
         Customer customer = getCustomerLogged()
         Payer payer = payerService.get(id, customer)
@@ -33,14 +31,12 @@ class PayerController {
         render(view: "show", model: [payer: payer])
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def create() {
         render(view: "create")
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def save() {
         try {
             Customer customer = getCustomerLogged()
@@ -57,8 +53,7 @@ class PayerController {
         }
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def edit(Long id) {
         Customer customer = getCustomerLogged()
         Payer payer = payerService.get(id, customer)
@@ -70,8 +65,7 @@ class PayerController {
         render(view: "edit", model: [payer: payer])
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def update() {
         try {
             Long id = params.long("id")
@@ -88,8 +82,7 @@ class PayerController {
         }
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured(['ROLE_ADMINISTRADOR'])
     def delete(Long id) {
         try {
             Customer customer = getCustomerLogged()
@@ -103,8 +96,7 @@ class PayerController {
         }
     }
 
-    @Secured('permitAll')
-//    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured(['ROLE_ADMINISTRADOR'])
     def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
