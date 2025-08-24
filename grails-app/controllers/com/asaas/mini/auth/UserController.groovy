@@ -9,7 +9,7 @@ class UserController {
     UserService userService
 
     private Customer getCustomerLogged() {
-        return Customer.get(1L) // por enquanto fixo
+        return Customer.get(1L)
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
