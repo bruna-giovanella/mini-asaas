@@ -1,132 +1,129 @@
 package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
-import com.asaas.mini.Payer
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class UserController {
 
-    static responseFormats = ['json']
     UserService userService
+
+    private Customer getCustomerLogged() {
+        return Customer.get(1L) // por enquanto fixo
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR'])
+    def index() {
+        Customer customer = getCustomerLogged()
+        List<User> userList = userService.list(customer)
+        render(view: "index", model: [userList: userList, customer: customer])
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR'])
+    def create() {
+        Customer customer = getCustomerLogged()
+        List<Role> roles = Role.list()
+        render(view: "create", model: [roles: roles, customer: customer])
+    }
 
     @Secured(['ROLE_ADMINISTRADOR'])
     def save() {
         try {
+            Customer customer = getCustomerLogged()
             String username = params.username
             String password = params.password
             String role = params.role
-            Customer customer = getCustomerLogged()
 
-            if (!username || !password || !role || !customerId) {
-                render(status: 400, text: [error: "Parâmetros obrigatórios ausentes"].toString())
+            if (!username || !password || !role) {
+                flash.message = "Preencha todos os campos obrigatórios"
+                redirect(action: "create")
                 return
             }
 
             User user = userService.createUser(username, password, role, customer)
-            respond(user, [status: 201])
+            flash.message = "Usuário criado com sucesso"
+            redirect(action: "index", id: user.id)
 
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao salvar usuário"
+            redirect(action: "create")
         } catch (Exception exception) {
-            log.error("Erro ao salvar usuário", exception)
-            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
-        }
-    }
-
-    @Secured('permitAll')
-    def show() {
-        try {
-            Customer customer = getCustomerLogged()
-            Long id = params.long("id")
-            User user = userService.get(customer, id)
-
-            if (!user) {
-                render(status: 404, text: "Usuário não encontrado")
-                return
-            }
-            respond user
-
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Um erro inesperado aconteceu"
+            render(view: "index")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
-    def list() {
-        try {
-            Customer customer = getCustomerLogged()
-            List<User> userList = userService.list(customer)
-            respond userList
+    def show(Long id) {
+        Customer customer = getCustomerLogged()
+        User user = userService.get(customer, id)
 
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        if (!user) {
+            flash.message = "Usuário não encontrado"
+            redirect(action: "index")
+            return
         }
+        render(view: "show", model: [user: user, customer: customer])
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR'])
+    def edit(Long id) {
+        Customer customer = getCustomerLogged()
+        User user = userService.get(customer, id)
+        if (!user) {
+            flash.message = "Usuário não encontrado"
+            redirect(action: "index")
+            return
+        }
+        List<Role> roles = Role.list()
+        render(view: "edit", model: [user: user, roles: roles, customer: customer])
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR'])
     def update() {
         try {
             Customer customer = getCustomerLogged()
+            Long id = params.long("id")
             String username = params.username
             String password = params.password
             String role = params.role
 
-            if (!username || !role || !customer) {
-                render(status: 400, contentType: 'application/json', text: [error: "Parâmetros obrigatórios ausentes"].toString())
-                return
-            }
-
-            Long id = params.long("id")
             User user = userService.update(username, password, role, customer, id)
-            respond(user, [status: 200])
+            flash.message = "Usuário atualizado com sucesso"
+            redirect(action: "index", id: user.id)
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao atualizar usuário"
+            redirect(action: "edit", id: params.id)
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Um erro inesperado aconteceu"
+            render(view: "index")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
-    def delete() {
+    def delete(Long id) {
         try {
             Customer customer = getCustomerLogged()
-            Long id = params.long("id")
             userService.delete(customer, id)
-            render(status: 204)
-
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Usuário deletado com sucesso"
+            redirect(action: "index")
         } catch (Exception exception) {
-            log.error("Erro ao deletar usuário", exception)
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao deletar usuário"
+            redirect(action: "index")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
-    def restore() {
+    def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
-            Long id = params.long("id")
             userService.restore(customer, id)
-            render(status: 204)
-
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Usuário restaurado com sucesso"
+            redirect(action: "index")
         } catch (Exception exception) {
-            log.error("Erro ao deletar usuário", exception)
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao restaurar usuário"
+            redirect(action: "index")
         }
-    }
-
-    private Customer getCustomerLogged() {
-        return Customer.get(1L)
     }
 }

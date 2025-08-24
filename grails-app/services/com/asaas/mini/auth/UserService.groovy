@@ -47,7 +47,7 @@ class UserService {
     }
 
     public List<User> list(Customer customer) {
-        return User.findAllByCustomerAndDeleted(customer, false)
+        return User.findAllByCustomer(customer)
     }
 
     public User update(String username, String password, String role, Customer customer, Long id) {
