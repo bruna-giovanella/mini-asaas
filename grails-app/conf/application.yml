@@ -194,4 +194,4 @@ grails:
           - pattern: '/**'
             access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
       successHandler:
-        defaultTargetUrl: '/dashboard'
+        defaultTargetUrl: '/customer/index'
