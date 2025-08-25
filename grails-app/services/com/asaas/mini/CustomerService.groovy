@@ -165,7 +165,7 @@ class CustomerService {
         if (!id) {
             throw new IllegalArgumentException("ID é necessário")
         }
-        Customer customer = Customer.findByIdAndDeleted(id, false)
+        Customer customer = Customer.findById(id)
         return customer
     }
 
