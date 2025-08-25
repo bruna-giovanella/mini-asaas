@@ -34,4 +34,26 @@ class UserService {
         return user
     }
 
+    public void delete(Customer customer, Long id) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+
+        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
+        if (!user) {
+            throw new IllegalArgumentException("Usuário não encontrado")
+        }
+        UserRole userRole = UserRole.findByUserAndDeleted(user, false)
+
+
+        user.deleted = true
+        user.markDirty('deleted')
+        user.save(failOnError:true)
+
+        userRole.deleted = true
+        userRole.markDirty('deleted')
+        userRole.save(failOnError:true)
+
+    }
+
 }
