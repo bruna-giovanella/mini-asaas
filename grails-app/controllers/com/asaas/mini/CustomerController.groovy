@@ -7,6 +7,17 @@ class CustomerController {
 
     CustomerService customerService
 
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    def index(Long id) {
+        Customer customer = customerService.get(id)
+        if (!customer) {
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
+            return
+        }
+        render(view: "index", model: [customer: customer])
+    }
+
     @Secured('permitAll')
     def create() {
         render(view: "create")
@@ -26,17 +37,6 @@ class CustomerController {
             flash.message = "Um erro inesperado aconteceu"
             render(view: "create", model: [customer: params])
         }
-    }
-
-    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
-    def index(Long id) {
-        Customer customer = customerService.get(id)
-        if (!customer) {
-            flash.message = "Conta não encontrada"
-            redirect(action: "create")
-            return
-        }
-        render(view: "index", model: [customer: customer])
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])

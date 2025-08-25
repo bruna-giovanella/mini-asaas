@@ -17,6 +17,7 @@
     <g:link class="btn" controller="customer" action="edit" id="${customer.id}">Editar</g:link>
     <g:link class="btn" controller="payer" action="index">Pagadores</g:link>
     <g:link class="btn" controller="payment" action="index">Cobranças</g:link>
+    <g:link class="btn" controller="user" action="index">Usuários</g:link>
 
 </div>
 
