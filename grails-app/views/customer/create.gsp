@@ -6,14 +6,14 @@
 </head>
 <body>
 
-<h1>Criar Cliente</h1>
+<h1>Criar Conta</h1>
 
 <g:if test="${flash.message}">
     <p>${flash.message}</p>
 </g:if>
 
 <g:form controller="customer" action="save">
-    <legend>Dados do Cliente</legend>
+    <legend>Dados da Conta</legend>
     <label>Nome:</label>
     <g:textField name="name" value="${customer?.name}"/><br/>
 
@@ -33,8 +33,8 @@
     <label>Complemento:</label>
     <g:textField name="complement" value="${customer?.complement}"/><br/>
 
-    <legend>Usuário Admin</legend>
-    <label>Email do Admin:</label>
+    <legend>Usuário Administrador</legend>
+    <label>Email:</label>
     <g:textField name="adminEmail" value="${customer?.adminEmail}"/><br/>
     <label>Senha:</label>
     <g:passwordField name="adminPassword"/><br/>
