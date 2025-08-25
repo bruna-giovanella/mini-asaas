@@ -92,7 +92,7 @@ class PayerController {
 
         } catch (Exception exception) {
             flash.message = "Erro ao excluir pagador"
-            redirect(action: "show", id: id)
+            redirect(action: "index")
         }
     }
 
