@@ -34,7 +34,7 @@ class UserController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR'])
     def show() {
         try {
             Customer customer = getCustomerLogged()
@@ -64,7 +64,7 @@ class UserController {
         }
     }
 
-    @Secured('permitAll')
+    @Secured(['ROLE_ADMINISTRADOR'])
     def update() {
         try {
             Customer customer = getCustomerLogged()
