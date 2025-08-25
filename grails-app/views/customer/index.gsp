@@ -19,19 +19,6 @@
     <g:link class="btn" controller="payment" action="index">Cobranças</g:link>
     <g:link class="btn" controller="user" action="index">Usuários</g:link>
 
-    <g:if test="${customer?.deleted}">
-        <g:form controller="customer" action="restore" method="post">
-            <g:hiddenField name="id" value="${customer?.id}"/>
-            <g:submitButton name="restore" class="btn btn-success" value="Restaurar Conta"/>
-        </g:form>
-    </g:if>
-
-    <g:if test="${!customer?.deleted}">
-        <g:form controller="customer" action="delete" method="post">
-            <g:hiddenField name="id" value="${customer?.id}"/>
-            <g:submitButton name="delete" class="btn btn-danger" value="Excluir Conta"/>
-        </g:form>
-    </g:if>
 </div>
 
 <div class="content">

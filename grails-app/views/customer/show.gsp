@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<h1>Detalhes do Cliente</h1>
+<h1>Detalhes da Conta</h1>
 
 <g:if test="${flash.message}">
     <p>${flash.message}</p>
