@@ -192,6 +192,6 @@ grails:
           - pattern: '/logout/**'
             access: ['permitAll']
           - pattern: '/**'
-            access: ['ROLE_ADMIN', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
+            access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
       successHandler:
         defaultTargetUrl: '/dashboard'
