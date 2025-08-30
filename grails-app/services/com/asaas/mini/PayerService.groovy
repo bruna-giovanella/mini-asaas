@@ -33,7 +33,7 @@ class PayerService {
 
     public Payer get(Long id, Customer customer) {
         if (!id) {
-            throw new IllegalArgumentException("ID is required")
+            throw new IllegalArgumentException("O ID é obrigatório")
         }
         Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
 
@@ -41,7 +41,7 @@ class PayerService {
     }
 
     public List<Payer> list(Customer customer) {
-        return Payer.findAllByCustomerAndDeleted(customer, false)
+        return Payer.findAllByCustomer(customer)
     }
 
     public Payer update(Long id, Map params) {
@@ -83,6 +83,7 @@ class PayerService {
         }
 
         Payer existingCpfCnpj = Payer.where {
+            customer == customer
             cpfCnpj == params.cpfCnpj
             if (id) {
                 ne 'id', id
@@ -94,6 +95,7 @@ class PayerService {
         }
 
         Payer existingEmail = Payer.where {
+            customer == customer
             email == params.email
             if (id) {
                 ne 'id', id

@@ -51,25 +51,22 @@
 
 <div id="content" role="main">
     <section class="row colset-2-its">
-        <h1>Welcome to Grails</h1>
-
-        <p>
-            Congratulations, you have successfully started your first Grails application! At the moment
-            this is the default page, feel free to modify it to either redirect to a controller or display
-            whatever content you may choose. Below is a list of controllers that are currently deployed in
-            this application, click on each to execute its default action:
-        </p>
-
-        <div id="controllers" role="navigation">
-            <h2>Available Controllers:</h2>
-            <ul>
-                <g:each var="c" in="${grailsApplication.controllerClasses.sort { it.fullName } }">
-                    <li class="controller">
-                        <g:link controller="${c.logicalPropertyName}">${c.fullName}</g:link>
-                    </li>
-                </g:each>
-            </ul>
-        </div>
+        <g:if test="${sec.loggedIn}">
+            <h1>Bem-vindo ao Mini Asaas</h1>
+            <p>
+                Você está logado como <strong>${sec.username}</strong>.
+                <g:link controller="customer" action="index" class="btn btn-primary">Acessar Sistema</g:link>
+            </p>
+        </g:if>
+        <g:else>
+            <h1>Bem-vindo ao Mini Asaas</h1>
+            <p>
+                Sistema de gestão financeira. Faça login para acessar o sistema.
+            </p>
+            <div class="text-center">
+                <g:link controller="login" action="index" class="btn btn-primary btn-lg">Fazer Login</g:link>
+            </div>
+        </g:else>
     </section>
 </div>
 

@@ -109,15 +109,15 @@ environments:
     development:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/miniaasaas?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas?useSSL=false&serverTimezone=UTC
     test:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/miniaasaas_test?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas_test?useSSL=false&serverTimezone=UTC
     production:
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://localhost:3306/miniaasaas_prod?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas_prod?useSSL=false&serverTimezone=UTC
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -157,3 +157,20 @@ grails:
             autoStartup: true
             waitForJobsToCompleteOnShutdown: true
             jdbcStore: false
+
+---
+grails:
+  plugin:
+    springsecurity:
+      userLookup:
+        userDomainClassName: 'com.asaas.mini.auth.User'
+        authorityJoinClassName: 'com.asaas.mini.auth.UserRole'
+      authority:
+        className: 'com.asaas.mini.auth.Role'
+      logout:
+        postOnly: false
+        logoutSuccessUrl: '/'
+      successHandler:
+        defaultTargetUrl: '/customer/index'
+      failureHandler:
+        defaultFailureUrl: '/login/authfail'
