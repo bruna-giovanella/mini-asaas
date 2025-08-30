@@ -25,6 +25,19 @@
     <div class="collapse navbar-collapse" aria-expanded="false" style="height: 0.8px;" id="navbarContent">
         <ul class="nav navbar-nav ml-auto">
             <g:pageProperty name="page.nav"/>
+            <g:if test="${sec.loggedIn}">
+                <li class="nav-item">
+                    <span class="navbar-text">Olá, ${sec.username}</span>
+                </li>
+                <li class="nav-item">
+                    <g:link controller="logout" action="index" class="nav-link">Sair</g:link>
+                </li>
+            </g:if>
+            <g:else>
+                <li class="nav-item">
+                    <g:link controller="login" action="index" class="nav-link">Login</g:link>
+                </li>
+            </g:else>
         </ul>
     </div>
 

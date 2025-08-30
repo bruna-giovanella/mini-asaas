@@ -2,8 +2,10 @@ package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
 import com.asaas.mini.utils.BaseEntity
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 
-class User extends BaseEntity {
+class User extends BaseEntity implements UserDetails {
     String username
 
     String password
@@ -27,7 +29,38 @@ class User extends BaseEntity {
         password column: '`password`'
     }
 
-    Set<Role> getAuthorities() {
-        UserRole.findAllByUser(this)*.role as Set
+    @Override
+    Collection<? extends GrantedAuthority> getAuthorities() {
+        return UserRole.findAllByUser(this)*.role as Collection<GrantedAuthority>
+    }
+
+    @Override
+    String getPassword() {
+        return password
+    }
+
+    @Override
+    String getUsername() {
+        return username
+    }
+
+    @Override
+    boolean isAccountNonExpired() {
+        return !accountExpired
+    }
+
+    @Override
+    boolean isAccountNonLocked() {
+        return !accountLocked
+    }
+
+    @Override
+    boolean isCredentialsNonExpired() {
+        return !passwordExpired
+    }
+
+    @Override
+    boolean isEnabled() {
+        return enabled && !deleted
     }
 }

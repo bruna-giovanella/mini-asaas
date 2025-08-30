@@ -1,10 +1,9 @@
 package com.asaas.mini.auth
 
-import com.asaas.mini.utils.BaseEntity
+import java.io.Serializable
 
-class UserRole extends BaseEntity implements Serializable {
+class UserRole implements Serializable {
     User user
-
     Role role
 
     static mapping = {
@@ -23,4 +22,19 @@ class UserRole extends BaseEntity implements Serializable {
         instance
     }
 
+    @Override
+    boolean equals(other) {
+        if (!(other instanceof UserRole)) {
+            return false
+        }
+        other.user?.id == user?.id && other.role?.id == role?.id
+    }
+
+    @Override
+    int hashCode() {
+        def builder = new org.apache.commons.lang.builder.HashCodeBuilder()
+        if (user) builder.append(user.id)
+        if (role) builder.append(role.id)
+        builder.toHashCode()
+    }
 }

@@ -27,14 +27,20 @@ class CustomerController {
     def save() {
         try {
             Customer customer = customerService.save(params)
-            flash.message = "Conta criada com sucesso"
-            redirect(action: "index", id: customer.id)
+            flash.message = "Conta criada com sucesso! Agora faça login para acessar o sistema."
+            redirect(controller: 'login', action: 'index')
 
         } catch (ValidationException validationException) {
             flash.message = "Erro ao salvar conta"
             render(view: "create", model: [customer: params])
         } catch (Exception exception) {
-            flash.message = "Um erro inesperado aconteceu"
+            // Loga a stack trace completa para o console ou log do Grails
+            log.error("Erro ao criar Customer: ${exception.message}", exception)
+
+            // Mostra uma mensagem detalhada no flash, sem expor stack trace completo ao usuário
+            flash.message = "Erro ao criar Customer: ${exception.message}"
+
+            // Mantém os dados enviados para o formulário
             render(view: "create", model: [customer: params])
         }
     }

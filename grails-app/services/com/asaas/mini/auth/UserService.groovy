@@ -41,13 +41,15 @@ class UserService {
         if (!id) {
             throw new IllegalArgumentException("O ID é obrigatório")
         }
-        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
-
-        return user
+        User user = User.findById(id)
+        if (user && user.customer == customer) {
+            return user
+        }
+        return null
     }
 
     public List<User> list(Customer customer) {
-        return User.findAllByCustomer(customer)
+        return User.findAllByCustomerAndDeleted(customer, false)
     }
 
     public User update(String username, String password, String role, Customer customer, Long id) {
@@ -55,8 +57,8 @@ class UserService {
             throw new IllegalArgumentException("O ID é obrigatório")
         }
 
-        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
-        if (!user) {
+        User user = User.findById(id)
+        if (!user || user.customer != customer) {
             throw new IllegalArgumentException("Usuário não encontrado")
         }
 
@@ -82,21 +84,20 @@ class UserService {
             throw new IllegalArgumentException("O ID é obrigatório")
         }
 
-        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
-        if (!user) {
+        User user = User.findById(id)
+        if (!user || user.customer != customer) {
             throw new IllegalArgumentException("Usuário não encontrado")
         }
-        UserRole userRole = UserRole.findByUserAndDeleted(user, false)
-
+        UserRole userRole = UserRole.findByUser(user)
 
         user.deleted = true
         user.enabled = false
         user.markDirty('deleted')
         user.save(failOnError:true)
 
-        userRole.deleted = true
-        userRole.markDirty('deleted')
-        userRole.save(failOnError:true)
+        if (userRole) {
+            userRole.delete(flush: true)
+        }
 
     }
 
@@ -105,21 +106,14 @@ class UserService {
             throw new IllegalArgumentException("O ID é obrigatório")
         }
 
-        User user = User.findByIdAndCustomerAndDeleted(id, customer, true)
-        if (!user) {
+        User user = User.findById(id)
+        if (!user || user.customer != customer) {
             throw new IllegalArgumentException("Usuário não encontrado")
         }
-        UserRole userRole = UserRole.findByUserAndDeleted(user, true)
-
 
         user.deleted = false
         user.enabled = true
         user.markDirty('deleted')
         user.save(failOnError:true)
-
-        userRole.deleted = false
-        userRole.markDirty('deleted')
-        userRole.save(failOnError:true)
-
     }
 }
