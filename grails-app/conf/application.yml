@@ -109,15 +109,15 @@ environments:
     development:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/miniaasaas?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas?useSSL=false&serverTimezone=UTC
     test:
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost:3306/miniaasaas_test?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas_test?useSSL=false&serverTimezone=UTC
     production:
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://localhost:3306/miniaasaas_prod?useSSL=false&serverTimezone=UTC
+            url: jdbc:mysql://localhost:3306/miniasaas_prod?useSSL=false&serverTimezone=UTC
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -169,6 +169,13 @@ grails:
         className: 'com.asaas.mini.auth.Role'
       logout:
         postOnly: false
+        logoutSuccessUrl: '/'
+        afterLogoutUrl: '/'
+        invalidateHttpSession: true
+        deleteCookies: ['JSESSIONID']
+      session:
+        creationPolicy: 'ifRequired'
+        fixationPrevention: 'migrateSession'
       controllerAnnotations:
         staticRules:
           - pattern: '/'
@@ -191,7 +198,23 @@ grails:
             access: ['permitAll']
           - pattern: '/logout/**'
             access: ['permitAll']
+          - pattern: '/customer/create'
+            access: ['permitAll']
+          - pattern: '/customer/save'
+            access: ['permitAll']
+          - pattern: '/test/**'
+            access: ['permitAll']
           - pattern: '/**'
             access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
       successHandler:
         defaultTargetUrl: '/customer/index'
+      failureHandler:
+        defaultFailureUrl: '/login/authfail'
+      auth:
+        loginPageUrl: '/login'
+        ajaxLoginDeniedUrl: '/login/denied'
+        ajaxDeniedUrl: '/login/denied'
+      password:
+        algorithm: 'bcrypt'
+        bcrypt:
+          logrounds: 10
