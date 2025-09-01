@@ -204,6 +204,8 @@ grails:
             access: ['permitAll']
           - pattern: '/test/**'
             access: ['permitAll']
+          - pattern: '/customer/index'
+            access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
           - pattern: '/**'
             access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
       successHandler:
@@ -211,9 +213,11 @@ grails:
       failureHandler:
         defaultFailureUrl: '/login/authfail'
       auth:
-        loginPageUrl: '/login'
+        loginPageUrl: '/login/auth'
         ajaxLoginDeniedUrl: '/login/denied'
         ajaxDeniedUrl: '/login/denied'
+      apf:
+        filterProcessesUrl: '/login/authenticate'
       password:
         algorithm: 'bcrypt'
         bcrypt:
