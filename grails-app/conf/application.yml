@@ -194,7 +194,13 @@ grails:
             access: ['permitAll']
           - pattern: '/**/images/**'
             access: ['permitAll']
-          - pattern: '/login/**'
+          - pattern: '/login/index'
+            access: ['permitAll']
+          - pattern: '/login/auth'
+            access: ['permitAll']
+          - pattern: '/login/authfail'
+            access: ['permitAll']
+          - pattern: '/login/denied'
             access: ['permitAll']
           - pattern: '/logout/**'
             access: ['permitAll']
@@ -204,12 +210,13 @@ grails:
             access: ['permitAll']
           - pattern: '/test/**'
             access: ['permitAll']
-          - pattern: '/customer/index'
+          - pattern: '/customer/**'
             access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
           - pattern: '/**'
             access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
       successHandler:
         defaultTargetUrl: '/customer/index'
+        alwaysUseDefaultTargetUrl: true
       failureHandler:
         defaultFailureUrl: '/login/authfail'
       auth:
