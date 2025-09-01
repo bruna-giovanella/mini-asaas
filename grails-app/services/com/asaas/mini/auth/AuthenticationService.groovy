@@ -8,8 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
-
-import java.security.Principal
+import grails.plugin.springsecurity.userdetails.GrailsUser
 
 @Transactional
 class AuthenticationService {
@@ -62,8 +61,8 @@ class AuthenticationService {
 
     User getCurrentUser() {
         def principal = springSecurityService.principal
-        if (principal instanceof User) {
-            return principal
+        if (principal instanceof GrailsUser) {
+            return User.get(principal.id)
         }
         return null
     }
@@ -82,6 +81,6 @@ class AuthenticationService {
     }
 
     void logout() {
-        springSecurityService.logout()
+        SecurityContextHolder.clearContext()
     }
 }
