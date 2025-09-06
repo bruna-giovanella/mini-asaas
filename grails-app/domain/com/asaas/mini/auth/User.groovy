@@ -2,8 +2,15 @@ package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
 import com.asaas.mini.utils.BaseEntity
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
-class User extends BaseEntity {
+@EqualsAndHashCode(includes='username')
+@ToString(includes='username', includeNames=true, includePackage=false)
+class User extends BaseEntity implements Serializable {
+
+    private static final long serialVersionUID = 1
+
     String username
 
     String password
@@ -21,6 +28,7 @@ class User extends BaseEntity {
     static constraints = {
         username blank: false, unique: true
         password blank: false
+        customer nullable: false
     }
 
     static mapping = {
