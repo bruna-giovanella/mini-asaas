@@ -11,6 +11,7 @@ abstract class BaseEntity {
     Boolean deleted = false
 
     static constraints = {
+        dateCreated nullable: true
         lastUpdated nullable: true
         deleted nullable: false
     }
@@ -27,6 +28,7 @@ abstract class BaseEntity {
     def beforeUpdate() {
         lastUpdated = new Date()
     }
+
 
     static mapping = {
         deleted column: 'deleted', sqlType: 'tinyint(1)', defaultValue: 0

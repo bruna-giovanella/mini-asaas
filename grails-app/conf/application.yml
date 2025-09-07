@@ -157,3 +157,41 @@ grails:
             autoStartup: true
             waitForJobsToCompleteOnShutdown: true
             jdbcStore: false
+
+---
+grails:
+  plugin:
+    springsecurity:
+      userLookup:
+        userDomainClassName: 'com.asaas.mini.auth.User'
+        authorityJoinClassName: 'com.asaas.mini.auth.UserRole'
+      authority:
+        className: 'com.asaas.mini.auth.Role'
+      logout:
+        postOnly: false
+      controllerAnnotations:
+        staticRules:
+          - pattern: '/'
+            access: ['permitAll']
+          - pattern: '/error'
+            access: ['permitAll']
+          - pattern: '/index'
+            access: ['permitAll']
+          - pattern: '/shutdown'
+            access: ['permitAll']
+          - pattern: '/assets/**'
+            access: ['permitAll']
+          - pattern: '/**/js/**'
+            access: ['permitAll']
+          - pattern: '/**/css/**'
+            access: ['permitAll']
+          - pattern: '/**/images/**'
+            access: ['permitAll']
+          - pattern: '/login/**'
+            access: ['permitAll']
+          - pattern: '/logout/**'
+            access: ['permitAll']
+          - pattern: '/**'
+            access: ['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR']
+      successHandler:
+        defaultTargetUrl: '/dashboard'
