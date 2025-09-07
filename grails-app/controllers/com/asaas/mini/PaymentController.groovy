@@ -1,19 +1,27 @@
 package com.asaas.mini
 
+import com.asaas.mini.auth.SecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class PaymentController {
 
     PaymentService paymentService
+    SecurityService securityService
 
     private Customer getCustomerLogged() {
-        return Customer.get(7L)
+        return securityService.getCurrentCustomer()
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index() {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         List<Payment> paymentList = paymentService.list(customer)
         render(view: "index", model: [paymentList: paymentList, customer: customer])
     }
@@ -22,6 +30,12 @@ class PaymentController {
     def show(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Payment payment = paymentService.get(id, customer)
 
             if (!payment) {
@@ -40,6 +54,12 @@ class PaymentController {
     def create() {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
             render(view: "create", model: [payers: payers, customer: customer])
         } catch (Exception exception) {
@@ -51,6 +71,11 @@ class PaymentController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def save() {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
 
         Long payerId = params.long("payer.id")
         Payer payer = Payer.findByIdAndCustomerAndDeleted(payerId, customer, false)
@@ -76,6 +101,12 @@ class PaymentController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def edit (Long id) {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         Payment payment = paymentService.get(id, customer)
         if (!payment) {
             flash.message = "Cobrança não encontrada"
@@ -90,16 +121,22 @@ class PaymentController {
     def update() {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Long id = params.long("id")
             Payment payment = paymentService.update(id, params, customer)
-            flash.message = "Pagador atualizado com sucesso"
+            flash.message = "Cobrança atualizada com sucesso"
             redirect(action: "show", id: payment.id)
 
         } catch (ValidationException validationException) {
-            flash.message = "Erro ao atualizar pagador"
+            flash.message = "Erro ao atualizar cobrança"
             redirect(action: "edit", id: params.id)
         } catch (Exception exception) {
-            flash.message = "Erro inesperado ao atualizar pagador"
+            flash.message = "Erro inesperado ao atualizar cobrança"
             redirect(action: "edit", id: params.id)
         }
     }
@@ -108,6 +145,12 @@ class PaymentController {
     def delete(Long id ) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             paymentService.delete(id, customer)
             flash.message = "Cobrança removida com sucesso"
             redirect(action: "index")
@@ -122,6 +165,12 @@ class PaymentController {
     def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             paymentService.restore(id, customer)
             flash.message = "Cobrança restaurada com sucesso"
             redirect(action: "index")
@@ -136,6 +185,12 @@ class PaymentController {
     def confirmInCash(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Payment payment = paymentService.confirmInCash(id, customer)
             flash.message = "Cobrança recebida com sucesso"
             redirect(action: "index")
