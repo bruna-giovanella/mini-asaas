@@ -18,6 +18,7 @@
     <g:link class="btn" controller="payer" action="index">Pagadores</g:link>
     <g:link class="btn" controller="payment" action="index">Cobranças</g:link>
     <g:link class="btn" controller="user" action="index">Usuários</g:link>
+    <g:link class="btn" controller="login" action="logout">Sair</g:link>
 
     <g:if test="${customer?.deleted}">
         <g:form controller="customer" action="restore" method="post">
