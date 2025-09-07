@@ -57,7 +57,25 @@ class UserController {
         }
     }
 
+    @Secured(['ROLE_ADMINISTRADOR'])
+    def restore() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.long("id")
+            userService.restore(customer, id)
+            render(status: 204)
+
+        } catch (IllegalArgumentException illegalArgumentException) {
+            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (ValidationException validationException) {
+            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            log.error("Erro ao deletar usuário", exception)
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
     private Customer getCustomerLogged() {
-        return Customer.get(3L)
+        return Customer.get(1L)
     }
 }
