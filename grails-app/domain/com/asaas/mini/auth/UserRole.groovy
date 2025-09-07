@@ -3,7 +3,10 @@ package com.asaas.mini.auth
 import com.asaas.mini.utils.BaseEntity
 
 class UserRole extends BaseEntity implements Serializable {
-    User1 user
+
+    private static final long serialVersionUID = 1
+
+    User user
 
     Role role
 
@@ -17,7 +20,7 @@ class UserRole extends BaseEntity implements Serializable {
         user nullable: false
     }
 
-    static UserRole create(User1 user, Role role, boolean flush = false) {
+    static UserRole create(User user, Role role, boolean flush = false) {
         def instance = new UserRole(user: user, role: role)
         instance.save(flush: flush)
         instance
