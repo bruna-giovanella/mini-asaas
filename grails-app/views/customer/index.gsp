@@ -1,5 +1,13 @@
 <g:applyLayout name="main">
-<atlas-page-header page-name="Dashboard"></atlas-page-header>
+<atlas-page-header page-name="Olá, ${customer?.name}"></atlas-page-header>
+
+    <g:if test="${flash.message}">
+        <div class="floating-alert">
+            <atlas-alert
+                message="${flash.message}"
+            </atlas-alert>
+        </div>
+    </g:if>
 
     <atlas-panel>
 
@@ -10,7 +18,8 @@
             </atlas-badge>
         </g:if>
 
-        <h1>Olá, ${customer?.name}</h1>
+        <atlas-text size="lg" bold> Dashboard </atlas-text>
+
         <atlas-text><strong>Email:</strong> ${customer?.email}</atlas-text>
         <atlas-text><strong>CPF/CNPJ:</strong> ${customer?.cpfCnpj}</atlas-text>
 
@@ -47,15 +56,6 @@
             </g:if>
 
         </atlas-layout>
-
-        <g:if test="${flash.message}">
-            <div class="floating-alert">
-                <atlas-alert
-                    message="${flash.message}"
-                    type="success">
-                </atlas-alert>
-            </div>
-        </g:if>
 
     </atlas-panel>
 </g:applyLayout>
