@@ -1,9 +1,10 @@
 <html>
 <head>
-    <title>Criar Conta</title>
+    <title>Criar Conta  </title>
     <meta name="layout" content="external">
 </head>
 <body page-title="Criar Conta">
+    <atlas-page-header page-name="Criar Conta"> </atlas-page-header>
     <atlas-panel>
         <atlas-form method="post" action="${createLink(controller: "customer", action: "save")}">
             <atlas-grid>
