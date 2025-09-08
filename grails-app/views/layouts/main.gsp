@@ -53,7 +53,7 @@
                     value="customer"
                     icon="home"
                     text="Dashboard"
-                    href="/customer/index"
+                    href="${createLink(controller: 'customer', action: 'index', id: customer?.id)}">
                     active
                 >
                 </atlas-sidebar-menu-item>
