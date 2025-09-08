@@ -1,48 +1,120 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title>Criar Conta</title>
+    <meta name="layout" content="external">
 </head>
-<body>
+<body page-title="Criar Conta">
+    <atlas-panel>
+        <atlas-form method="post" action="${createLink(controller: "customer", action: "save")}">
+            <atlas-grid>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-input
+                            label="Nome"
+                            name="name"
+                            required="true"
+                            value="${customer?.name}"
+                        >
+                        </atlas-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-masked-input
+                            label="Email"
+                            name="email"
+                            mask-alias="email"
+                            required="true"
+                            value="${customer?.email}"
+                        >
+                        </atlas-masked-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-masked-input
+                            label="CPF/CNPJ"
+                            name="cpfCnpj"
+                            mask-alias="cpf-cnpj"
+                            required="true"
+                            value="${customer?.cpfCnpj}"
+                        >
+                        </atlas-masked-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-postal-code
+                            label="CEP"
+                            name="address.cep"
+                            required="true"
+                            value="${customer?.address?.cep}"
+                        >
+                        </atlas-postal-code>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-input
+                            label="Cidade"
+                            name="address.city"
+                            required="true"
+                            value="${customer?.address?.city}"
+                        >
+                        </atlas-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-input
+                            label="Estado"
+                            name="address.state"
+                            required="true"
+                            value="${customer?.address?.state}"
+                        >
+                        </atlas-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-input
+                            label="Complemento"
+                            name="address.complement"
+                            required="false"
+                            value="${customer?.address?.complement}"
+                        >
+                        </atlas-input>
+                    </atlas-col>
+                </atlas-row>
 
-<h1>Criar Cliente</h1>
 
-<g:if test="${flash.message}">
-    <p>${flash.message}</p>
-</g:if>
-
-<g:form controller="customer" action="save">
-    <legend>Dados do Cliente</legend>
-    <label>Nome:</label>
-    <g:textField name="name" value="${customer?.name}"/><br/>
-
-    <label>Email:</label>
-    <g:textField name="email" value="${customer?.email}"/><br/>
-
-    <label>CPF/CNPJ:</label>
-    <g:textField name="cpfCnpj" value="${customer?.cpfCnpj}"/><br/>
-
-    <legend>Endereço</legend>
-    <label>CEP:</label>
-    <g:textField name="cep" value="${customer?.cep}"/><br/>
-    <label>Cidade:</label>
-    <g:textField name="city" value="${customer?.city}"/><br/>
-    <label>Estado:</label>
-    <g:textField name="state" value="${customer?.state}"/><br/>
-    <label>Complemento:</label>
-    <g:textField name="complement" value="${customer?.complement}"/><br/>
-
-    <legend>Usuário Admin</legend>
-    <label>Email do Admin:</label>
-    <g:textField name="adminEmail" value="${customer?.adminEmail}"/><br/>
-    <label>Senha:</label>
-    <g:passwordField name="adminPassword"/><br/>
-
-<g:submitButton name="create" value="Salvar"/>
-</g:form>
-
-<p><g:link action="index">Voltar</g:link></p>
-
+               <atlas-row>
+                    <atlas-col>
+                        <atlas-masked-input
+                            label="Usuário"
+                            name="adminEmail"
+                            mask-alias="email"
+                            required="true"
+                            value="${customer?.adminEmail}"
+                        >
+                        </atlas-masked-input>
+                    </atlas-col>
+                </atlas-row>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-password-input
+                            label="Senha"
+                            name="adminPassword"
+                            required="true"
+                            value="${customer?.adminPassword}"
+                            remove-visibility-icon>
+                        >
+                        </atlas-password-input>
+                    </atlas-col>
+                </atlas-row>
+            </atlas-grid>
+            <atlas-button submit description="Salvar"></atlas-button>
+        </atlas-form>
+    </atlas-panel>
 </body>
 </html>
