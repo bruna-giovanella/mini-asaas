@@ -35,7 +35,7 @@ class PayerService {
         if (!id) {
             throw new IllegalArgumentException("O ID é obrigatório")
         }
-        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+        Payer payer = Payer.findByIdAndCustomer(id, customer)
 
         return payer
     }
@@ -45,7 +45,7 @@ class PayerService {
     }
 
     public Map listPaginated(Customer customer, int max, int offset, String sortField, String sortOrder) {
-        def validSortFields = ['name', 'email', 'dateCreated', 'lastUpdated']
+        def validSortFields = ['name', 'email', 'dateCreated', 'lastUpdated', 'deleted']
         if (!validSortFields.contains(sortField)) {
             sortField = 'name'
         }
@@ -204,7 +204,7 @@ class PayerService {
         }
 
         if (activePayments) {
-            throw new IllegalArgumentException("O pagador possui pagamentos pendentes")
+            throw new IllegalArgumentException("Não é possível excluir este cliente pois ele possui cobrança(s) ativa(s) aguardando pagamento. Primeiro exclua ou receba as cobranças pendentes.")
         }
     }
 
