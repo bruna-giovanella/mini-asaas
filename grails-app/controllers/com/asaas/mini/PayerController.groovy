@@ -22,8 +22,22 @@ class PayerController {
             return
         }
         
-        List<Payer> payerList = payerService.list(customer);
-        render(view: "index", model: [payerList: payerList, customer: customer])
+        int max = params.int('max') ?: 10
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'name'
+        String order = params.order ?: 'asc'
+        
+        def result = payerService.listPaginated(customer, max, offset, sort, order)
+        
+        render(view: "index", model: [
+            payerList: result.payerList,
+            customer: customer,
+            totalCount: result.totalCount,
+            max: max,
+            offset: offset,
+            sort: sort,
+            order: order
+        ])
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
