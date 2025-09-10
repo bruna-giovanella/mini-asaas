@@ -41,7 +41,36 @@ class PayerService {
     }
 
     public List<Payer> list(Customer customer) {
-        return Payer.findAllByCustomer(customer)
+        return Payer.findAllByCustomerAndDeleted(customer, false)
+    }
+
+    public Map listPaginated(Customer customer, int max, int offset, String sortField, String sortOrder) {
+        def validSortFields = ['name', 'email', 'dateCreated', 'lastUpdated']
+        if (!validSortFields.contains(sortField)) {
+            sortField = 'name'
+        }
+        
+        def validOrders = ['asc', 'desc']
+        if (!validOrders.contains(sortOrder)) {
+            sortOrder = 'asc'
+        }
+        
+        int totalCount = Payer.createCriteria().count {
+            eq('customer', customer)
+        }
+        
+        def criteria = Payer.createCriteria()
+        List<Payer> payerList = criteria.list {
+            eq('customer', customer)
+            order(sortField, sortOrder)
+            maxResults(max)
+            firstResult(offset)
+        }
+        
+        return [
+            payerList: payerList,
+            totalCount: totalCount
+        ]
     }
 
     public Payer update(Long id, Map params) {
