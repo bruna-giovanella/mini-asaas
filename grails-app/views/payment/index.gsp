@@ -16,7 +16,7 @@
 
         <atlas-easy-table
             total-records="${totalCount}"
-            columns='[{"name":"payer","label":"Cliente","size":"lg","sortable":true},{"name":"status","label":"Status","size":"md","sortable":true},{"name":"value","label":"Valor","size":"md","sortable":true},{"name":"dueDate","label":"Vencimento","size":"md","sortable":true},{"name":"active","label":"Ativo","size":"sm","sortable":true},{"name":"actions","label":"Ações","size":"lg"}]'>
+            columns='[{"name":"payer","label":"Cliente","size":"lg","sortable":false},{"name":"status","label":"Status","size":"md","sortable":false},{"name":"value","label":"Valor","size":"md","sortable":false},{"name":"dueDate","label":"Vencimento","size":"md","sortable":false},{"name":"active","label":"Ativo","size":"sm","sortable":false},{"name":"actions","label":"Ações","size":"lg"}]'>
             
             <g:if test="${paymentList && !paymentList.isEmpty()}">
                 <g:each in="${paymentList}" var="payment">
