@@ -113,9 +113,9 @@
 
             <atlas-button
                 size="md"
-                description="Novo Cliente"
+                description="Nova Cobrança"
                 href="${createLink(controller: 'payment', action: 'create')}"
-                Novo Cliente
+                Nova Cobrança
             </atlas-button>
 
         </atlas-layout>
