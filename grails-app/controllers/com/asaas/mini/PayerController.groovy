@@ -140,11 +140,14 @@ class PayerController {
             }
             
             payerService.delete(id, customer)
-            flash.message = "Pagador removido com sucesso"
+            flash.message = "Cliente removido com sucesso"
             redirect(action: "index")
 
+        } catch (IllegalArgumentException illegalArgumentException) {
+            flash.message = illegalArgumentException.message
+            redirect(action: "index")
         } catch (Exception exception) {
-            flash.message = "Erro ao excluir pagador"
+            flash.message = "Erro inesperado ao excluir cliente"
             redirect(action: "index")
         }
     }
