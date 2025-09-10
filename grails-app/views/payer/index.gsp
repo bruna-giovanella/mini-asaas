@@ -17,7 +17,7 @@
         <atlas-easy-table
 
             total-records="${totalCount}"
-            columns='[{"name":"name","label":"Nome","size":"lg","sortable":true},{"name":"email","label":"E-mail","size":"lg","sortable":true},{"name":"status","label":"Status","size":"sm","sortable":true},{"name":"actions","label":"Ações","size":"md"}]'>
+            columns='[{"name":"name","label":"Nome","size":"lg","sortable":false},{"name":"email","label":"E-mail","size":"lg","sortable":false},{"name":"status","label":"Status","size":"sm","sortable":false},{"name":"actions","label":"Ações","size":"md"}]'>
             
             <g:if test="${payerList && !payerList.isEmpty()}">
                 <g:each in="${payerList}" var="payer">
