@@ -134,8 +134,8 @@ class PayerController {
         try {
             Customer customer = getCustomerLogged()
             if (!customer) {
-                flash.message = "Usuário não autenticado"
-                redirect(controller: "login", action: "auth")
+                response.status = 401
+                render(text: "Usuário não autenticado", status: 401)
                 return
             }
             
@@ -144,11 +144,11 @@ class PayerController {
             redirect(action: "index")
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            flash.message = illegalArgumentException.message
-            redirect(action: "index")
+            response.status = 400
+            render(text: illegalArgumentException.message, status: 400)
         } catch (Exception exception) {
-            flash.message = "Erro inesperado ao excluir cliente"
-            redirect(action: "index")
+            response.status = 500
+            render(text: "Erro inesperado ao excluir cliente", status: 500)
         }
     }
 
@@ -157,18 +157,21 @@ class PayerController {
         try {
             Customer customer = getCustomerLogged()
             if (!customer) {
-                flash.message = "Usuário não autenticado"
-                redirect(controller: "login", action: "auth")
+                response.status = 401
+                render(text: "Usuário não autenticado", status: 401)
                 return
             }
             
             payerService.restore(id, customer)
-            flash.message = "Pagador restaurado com sucesso"
+            flash.message = "Cliente restaurado com sucesso"
             redirect(action: "index")
 
+        } catch (IllegalArgumentException illegalArgumentException) {
+            response.status = 400
+            render(text: illegalArgumentException.message, status: 400)
         } catch (Exception exception) {
-            flash.message = "Erro ao restaurar pagador"
-            redirect(action: "index")
+            response.status = 500
+            render(text: "Erro inesperado ao restaurar cliente", status: 500)
         }
     }
 }
