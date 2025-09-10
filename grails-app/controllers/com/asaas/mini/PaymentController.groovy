@@ -21,9 +21,23 @@ class PaymentController {
             redirect(controller: "login", action: "auth")
             return
         }
+
+        int max = params.int('max') ?: 10
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'dueDate'
+        String order = params.order ?: 'desc'
         
-        List<Payment> paymentList = paymentService.list(customer)
-        render(view: "index", model: [paymentList: paymentList, customer: customer])
+        def result = paymentService.listPaginated(customer, max, offset, sort, order)
+        
+        render(view: "index", model: [
+            paymentList: result.paymentList,
+            customer: customer,
+            totalCount: result.totalCount,
+            max: max,
+            offset: offset,
+            sort: sort,
+            order: order
+        ])
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
