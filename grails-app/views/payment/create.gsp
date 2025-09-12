@@ -1,58 +1,75 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Nova Cobrança</title>
-</head>
-<body>
+<g:applyLayout name="main">
 
-<h1>Criar Cobrança</h1>
+    <atlas-page-header page-name="Nova Cobrança"></atlas-page-header>
 
-<g:if test="${flash.message}">
-    <p><strong>${flash.message}</strong></p>
-</g:if>
+    <g:if test="${flash.message}">
+        <div class="floating-alert">
+            <atlas-alert
+                message="${flash.message}"
+                type="error">
+            </atlas-alert>
+        </div>
+    </g:if>
 
-<g:set var="anoAtual" value="${Calendar.instance.get(Calendar.YEAR)}"/>
+<atlas-alert type="info" message=
+    "Pagamentos via PIX terão vencimento de 1 dia.
+    Pagamentos via Cartão ou Boleto terão vencimento de 30 dias.">
+</atlas-alert>
 
-<g:form controller="payment" action="save" method="post">
-    <table>
-        <tr>
-            <td>Pagador:</td>
-            <td>
-                <g:select
-                    name="payer.id"
-                    from="${payers}"
-                    optionKey="id"
-                    optionValue="${{ it.name + ' - ' + it.email }}"
-                    noSelection="['':'-- Selecione um pagador --']"/>
-            </td>
-        </tr>
-        <tr>
-            <td>Valor:</td>
-            <td><g:textField name="value"/></td>
-        </tr>
-        <tr>
-            <td>Tipo:</td>
-            <td>
-                <g:select name="type" from="${com.asaas.mini.enums.PaymentType.values()}" />
-            </td>
-        </tr>
-        <tr>
-            <td>Data de vencimento:</td>
-            <td>
-                <g:datePicker name="dueDate"
-                              precision="day"
-                              years="${anoAtual..(anoAtual+10)}"/>
-            </td>
-        </tr>
-    </table>
+    <atlas-panel>
+        <atlas-text size="lg" bold>Criar Nova Cobrança</atlas-text>
 
-    <p><g:submitButton name="create" value="Salvar"/></p>
-</g:form>
+        <g:form controller="payment" action="save" method="post">
+            <atlas-grid>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Pagador </atlas-text>
+                        <g:select
+                            name="payer.id"
+                            from="${payers}"
+                            optionKey="id"
+                            optionValue="${{ it.name + ' - ' + it.email }}"
+                            noSelection="['':'-- Selecione um pagador --']"
+                            class="form-control"
+                            required="true"/>
+                    </atlas-col>
+                </atlas-row>
 
-<p>
-    <g:link controller="payment" action="index">Voltar</g:link>
-</p>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Valor </atlas-text>
+                        <input
+                            name="value"
+                            type="text"
+                            class="form-control"
+                            placeholder="0,00"
+                            required="true"
+                            value="${payment?.value ?: ''}">
+                        </input>
+                    </atlas-col>
+                </atlas-row>
 
-</body>
-</html>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Tipo </atlas-text>
+                        <g:select
+                            name="type"
+                            from="${com.asaas.mini.enums.PaymentType.values()}"
+                            class="form-control"
+                            required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+            <atlas-layout gap="2" inline>
+                <g:submitButton name="create" value="Salvar Cobrança" class="btn btn-primary"/>
+                <atlas-button
+                    description="Voltar"
+                    href="${createLink(controller: 'payment', action: 'index')}"
+                    theme="ghost">
+                    Voltar
+                </atlas-button>
+            </atlas-layout>
+        </g:form>
+    </atlas-panel>
+
+</g:applyLayout>
