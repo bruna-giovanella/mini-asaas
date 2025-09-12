@@ -68,7 +68,7 @@
                 <g:submitButton name="update" value="Salvar Alterações" class="btn btn-primary"/>
                 <atlas-button
                     description="Voltar"
-                    href="${createLink(controller: 'payment', action: 'show', id: payment?.id)}">
+                    href="${createLink(controller: 'payment', action: 'index', id: payment?.id)}">
                     Voltar
                 </atlas-button>
             </atlas-layout>
