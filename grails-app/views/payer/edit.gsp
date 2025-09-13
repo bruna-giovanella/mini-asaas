@@ -85,7 +85,7 @@
 
                 <atlas-button
                     description="Voltar"
-                    href="${createLink(controller: 'payer', action: 'show', id: payer?.id)}">
+                    href="${createLink(controller: 'payer', action: 'index', id: payer?.id)}">
                     Voltar
                 </atlas-button>
             </atlas-layout>
