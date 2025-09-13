@@ -1,37 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Minha Conta</title>
-</head>
-<body>
+<g:applyLayout name="main">
+<atlas-page-header page-name="Olá, ${customer?.name}"></atlas-page-header>
 
-<div class="sidebar">
-
-    <h1>Bem-vindo, ${customer?.name}</h1>
-    <p><strong>Email:</strong> ${customer?.email}</p>
-    <p><strong>CPF/CNPJ:</strong> ${customer?.cpfCnpj}</p>
-
-    <h3>Menu</h3>
-    <g:link class="btn" controller="customer" action="show" id="${customer.id}">Visualizar</g:link>
-    <g:link class="btn" controller="customer" action="edit" id="${customer.id}">Editar</g:link>
-    <g:link class="btn" controller="payer" action="index">Pagadores</g:link>
-    <g:link class="btn" controller="payment" action="index">Cobranças</g:link>
-    <g:link class="btn" controller="user" action="index">Usuários</g:link>
-    <g:link class="btn" controller="login" action="logout">Sair</g:link>
-
-</div>
-
-<div class="content">
     <g:if test="${flash.message}">
-        <p><strong>${flash.message}</strong></p>
+        <div class="floating-alert">
+            <atlas-alert
+                message="${flash.message}"
+            </atlas-alert>
+        </div>
     </g:if>
 
-    <g:if test="${customer?.deleted}">
-        <div class="alert">⚠️ Sua conta está deletada. Restaure para voltar a usá-la.</div>
-    </g:if>
+    <atlas-panel>
 
-</div>
+        <g:if test="${customer?.deleted}">
+            <atlas-badge
+                text="Conta deletada. Restaure para utilizar"
+                theme="danger">
+            </atlas-badge>
+        </g:if>
 
-</body>
-</html>
+        <atlas-text size="lg" bold> Dashboard </atlas-text>
+
+        <atlas-text><strong>Email:</strong> ${customer?.email}</atlas-text>
+        <atlas-text><strong>CPF/CNPJ:</strong> ${customer?.cpfCnpj}</atlas-text>
+
+        <atlas-divider> </atlas-divider>
+
+        <atlas-layout gap="2" inline>
+
+            <atlas-button
+                description="Visualizar"
+                href="${createLink(controller: 'customer', action: 'show', id: customer.id)}">
+                Visualizar
+            </atlas-button>
+
+            <atlas-button
+                description="Editar"
+                href="${createLink(controller: 'customer', action: 'edit', id: customer.id)}">
+                Editar
+            </atlas-button>
+
+            <g:if test="${customer}">
+                <atlas-form id="form${customer?.id}">
+                    <g:hiddenField name="id" value="${customer?.id}"/>
+                    <atlas-button
+                        theme="${customer?.deleted ? 'success' : 'danger'}"
+                        description="${customer?.deleted ? 'Restaurar Conta' : 'Excluir Conta'}"
+                        onclick="fetch('${createLink(controller:'customer', action: customer?.deleted ? 'restore' : 'delete')}', {
+                                   method: 'POST',
+                                   headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                                   body: 'id=${customer?.id}'
+                               }).then(()=>location.reload())">
+                        ${customer?.deleted ? 'Restaurar Conta' : 'Excluir Conta'}
+                    </atlas-button>
+                </atlas-form>
+            </g:if>
+
+        </atlas-layout>
+
+    </atlas-panel>
+</g:applyLayout>
