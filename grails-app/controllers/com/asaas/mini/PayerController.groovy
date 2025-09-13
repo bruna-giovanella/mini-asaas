@@ -1,19 +1,27 @@
 package com.asaas.mini
 
+import com.asaas.mini.auth.SecurityService
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class PayerController {
 
     PayerService payerService
+    SecurityService securityService
 
     private Customer getCustomerLogged() {
-        return Customer.get(7L)
+        return securityService.getCurrentCustomer()
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index() {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         List<Payer> payerList = payerService.list(customer);
         render(view: "index", model: [payerList: payerList, customer: customer])
     }
@@ -21,6 +29,12 @@ class PayerController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def show(Long id) {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         Payer payer = payerService.get(id, customer)
 
         if (!payer) {
@@ -40,6 +54,12 @@ class PayerController {
     def save() {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Payer payer = payerService.save(params, customer)
             flash.message = "Pagador criado com sucesso"
             redirect(action: "show", id: payer.id)
@@ -56,6 +76,12 @@ class PayerController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def edit(Long id) {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         Payer payer = payerService.get(id, customer)
         if (!payer) {
             flash.message = "Pagador não encontrado"
@@ -68,6 +94,13 @@ class PayerController {
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
     def update() {
         try {
+            Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Long id = params.long("id")
             Payer payer = payerService.update(id, params)
             flash.message = "Pagador atualizado com sucesso"
@@ -86,6 +119,12 @@ class PayerController {
     def delete(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             payerService.delete(id, customer)
             flash.message = "Pagador removido com sucesso"
             redirect(action: "index")
@@ -100,6 +139,12 @@ class PayerController {
     def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             payerService.restore(id, customer)
             flash.message = "Pagador restaurado com sucesso"
             redirect(action: "index")

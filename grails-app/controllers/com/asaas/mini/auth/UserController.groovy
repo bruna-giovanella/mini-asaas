@@ -7,14 +7,21 @@ import org.grails.datastore.mapping.validation.ValidationException
 class UserController {
 
     UserService userService
+    SecurityService securityService
 
     private Customer getCustomerLogged() {
-        return Customer.get(1L)
+        return securityService.getCurrentCustomer()
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
     def index() {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         List<User> userList = userService.list(customer)
         render(view: "index", model: [userList: userList, customer: customer])
     }
@@ -22,6 +29,12 @@ class UserController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def create() {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         List<Role> roles = Role.list()
         render(view: "create", model: [roles: roles, customer: customer])
     }
@@ -30,6 +43,12 @@ class UserController {
     def save() {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             String username = params.username
             String password = params.password
             String role = params.role
@@ -56,6 +75,12 @@ class UserController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def show(Long id) {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         User user = userService.get(customer, id)
 
         if (!user) {
@@ -69,6 +94,12 @@ class UserController {
     @Secured(['ROLE_ADMINISTRADOR'])
     def edit(Long id) {
         Customer customer = getCustomerLogged()
+        if (!customer) {
+            flash.message = "Usuário não autenticado"
+            redirect(controller: "login", action: "auth")
+            return
+        }
+        
         User user = userService.get(customer, id)
         if (!user) {
             flash.message = "Usuário não encontrado"
@@ -83,6 +114,12 @@ class UserController {
     def update() {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             Long id = params.long("id")
             String username = params.username
             String password = params.password
@@ -105,6 +142,12 @@ class UserController {
     def delete(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             userService.delete(customer, id)
             flash.message = "Usuário deletado com sucesso"
             redirect(action: "index")
@@ -118,6 +161,12 @@ class UserController {
     def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
+            
             userService.restore(customer, id)
             flash.message = "Usuário restaurado com sucesso"
             redirect(action: "index")
