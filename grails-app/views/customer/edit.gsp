@@ -1,60 +1,105 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Editar Conta</title>
-</head>
-<body>
-    <h1>Editar Conta</h1>
+<g:applyLayout name="main">
+
+    <atlas-page-header page-name="Editar Conta"></atlas-page-header>
 
     <g:if test="${flash.message}">
-        <div>${flash.message}</div>
+        <div class="floating-alert">
+            <atlas-alert type="danger">
+                ${flash.message}
+            </atlas-alert>
+        </div>
     </g:if>
 
-    <g:form controller="customer" action="update">
-        <g:hiddenField name="id" value="${customer?.id}"/>
+    <atlas-panel>
+        <atlas-text size="md" bold>Informações Pessoais</atlas-text>
 
-        <label>Nome:</label>
-        <g:textField name="name" value="${customer?.name}"/><br/>
-
-        <label>Email:</label>
-        <g:textField name="email" value="${customer?.email}"/><br/>
-
-        <label>CPF/CNPJ:</label>
-        <g:textField name="cpfCnpj" value="${customer?.cpfCnpj}"/><br/>
-
-        <h3>Endereço</h3>
-        <label>CEP:</label>
-        <g:textField name="cep" value="${customer?.address?.cep}"/><br/>
-
-        <label>Cidade:</label>
-        <g:textField name="city" value="${customer?.address?.city}"/><br/>
-
-        <label>Estado:</label>
-        <g:textField name="state" value="${customer?.address?.state}"/><br/>
-
-        <label>Complemento:</label>
-        <g:textField name="complement" value="${customer?.address?.complement}"/><br/>
-
-        <g:submitButton name="update" value="Salvar Alterações"/>
-    </g:form>
-
-    <hr/>
-
-    <g:if test="${!customer?.deleted}">
-        <g:form controller="customer" action="delete" method="post">
+        <g:form controller="customer" action="update" method="post">
             <g:hiddenField name="id" value="${customer?.id}"/>
-            <g:submitButton name="delete" class="btn btn-danger" value="Excluir Conta"/>
-        </g:form>
-    </g:if>
 
-    <g:if test="${customer.deleted}">
-        <g:form controller="customer" action="restore" method="post">
-            <g:hiddenField name="id" value="${customer?.id}"/>
-            <g:submitButton name="restore" value="Restaurar Conta"/>
-        </g:form>
-    </g:if>
+            <atlas-grid>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Nome *</atlas-text>
+                        <g:textField name="name" value="${customer?.name}" class="form-control" placeholder="Digite o nome completo" required="true"/>
+                    </atlas-col>
+                </atlas-row>
 
-    <br/>
-    <g:link action="index" id="${customer?.id}">Voltar</g:link>
-</body>
-</html>
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Email *</atlas-text>
+                        <g:textField name="email" value="${customer?.email}" class="form-control" placeholder="exemplo@email.com" required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>CPF/CNPJ *</atlas-text>
+                        <g:textField name="cpfCnpj" value="${customer?.cpfCnpj}" class="form-control" placeholder="000.000.000-00 ou 00.000.000/0000-00" required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+                <atlas-divider></atlas-divider>
+
+                <atlas-text size="md" bold>Endereço</atlas-text>
+
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>CEP *</atlas-text>
+                        <g:textField name="cep" value="${customer?.address?.cep}" class="form-control" placeholder="00000-000" required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Cidade *</atlas-text>
+                        <g:textField name="city" value="${customer?.address?.city}" class="form-control" placeholder="Digite a cidade" required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Estado *</atlas-text>
+                        <g:textField name="state" value="${customer?.address?.state}" class="form-control" placeholder="Digite o estado" required="true"/>
+                    </atlas-col>
+                </atlas-row>
+
+                <atlas-row>
+                    <atlas-col>
+                        <atlas-text size="sm" bold>Complemento</atlas-text>
+                        <g:textField name="complement" value="${customer?.address?.complement}" class="form-control" placeholder="Apartamento, casa, etc."/>
+                    </atlas-col>
+                </atlas-row>
+            </atlas-grid>
+
+            <atlas-divider></atlas-divider>
+
+            <atlas-layout gap="2" inline>
+                <g:submitButton name="update" value="Salvar Alterações" class="btn btn-primary"/>
+
+                <atlas-button
+                    description="Voltar"
+                    href="${createLink(controller: 'customer', action: 'index')}">
+                    Voltar
+                </atlas-button>
+            </atlas-layout>
+        </g:form>
+
+    </atlas-panel>
+</g:applyLayout>
+
+<style>
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+</style>
