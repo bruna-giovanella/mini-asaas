@@ -13,7 +13,7 @@
 
         <g:if test="${customer?.deleted}">
             <atlas-badge
-                text="Conta deletada. Restaure para utilizar"
+                text="Conta deletada"
                 theme="danger">
             </atlas-badge>
         </g:if>
