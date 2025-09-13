@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Novo Pagador</title>
+    <title>Novo Cliente</title>
 </head>
 <body>
-<h1>Criar Pagador</h1>
+<h1>Criar Cliente</h1>
 
 <g:if test="${flash.message}">
     <p>${flash.message}</p>
