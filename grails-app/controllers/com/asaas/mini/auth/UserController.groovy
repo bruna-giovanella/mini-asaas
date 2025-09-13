@@ -22,8 +22,22 @@ class UserController {
             return
         }
         
-        List<User> userList = userService.list(customer)
-        render(view: "index", model: [userList: userList, customer: customer])
+        int max = params.int('max') ?: 10
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'username'
+        String order = params.order ?: 'asc'
+        
+        def result = userService.listPaginated(customer, max, offset, sort, order)
+        
+        render(view: "index", model: [
+            userList: result.userList,
+            customer: customer,
+            totalCount: result.totalCount,
+            max: max,
+            offset: offset,
+            sort: sort,
+            order: order
+        ])
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
@@ -61,14 +75,14 @@ class UserController {
 
             User user = userService.createUser(username, password, role, customer)
             flash.message = "Usuário criado com sucesso"
-            redirect(action: "index", id: user.id)
+            redirect(action: "index")
 
         } catch (ValidationException validationException) {
-            flash.message = "Erro ao salvar usuário"
+            flash.message = "Erro ao salvar usuário: ${validationException.message}"
             redirect(action: "create")
         } catch (Exception exception) {
-            flash.message = "Um erro inesperado aconteceu"
-            render(view: "index")
+            flash.message = "Erro inesperado: ${exception.message}"
+            redirect(action: "create")
         }
     }
 
@@ -124,6 +138,12 @@ class UserController {
             String username = params.username
             String password = params.password
             String role = params.role
+
+            if (!username || !role) {
+                flash.message = "Preencha todos os campos obrigatórios"
+                redirect(action: "edit", id: id)
+                return
+            }
 
             User user = userService.update(username, password, role, customer, id)
             flash.message = "Usuário atualizado com sucesso"
