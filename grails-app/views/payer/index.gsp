@@ -2,11 +2,11 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Pagadores</title>
+    <title>Clientes</title>
 </head>
 <body>
 
-<h1>Lista de Pagadores</h1>
+<h1>Lista de Clientes</h1>
 
 <g:if test="${flash.message}">
     <p><strong>${flash.message}</strong></p>
@@ -49,7 +49,7 @@
 </table>
 
 <p>
-    <g:link controller="payer" action="create">Novo Pagador</g:link> |
+    <g:link controller="payer" action="create">Novo Cliente</g:link> |
     <g:link class="btn" controller="customer" action="index" id="${customer.id}">Voltar</g:link>
 </p>
 
