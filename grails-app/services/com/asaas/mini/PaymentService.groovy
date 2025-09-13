@@ -42,8 +42,7 @@ class PaymentService {
 
         Payment payment = Payment.where {
             id == idParam &&
-                    payer.customer == customer &&
-                    deleted == false
+                    payer.customer == customer
         }.get()
 
         if (!payment) {
@@ -59,6 +58,39 @@ class PaymentService {
                 eq("customer", customer)
             }
         }
+    }
+
+    public Map listPaginated(Customer customer, int max, int offset, String sortField, String sortOrder) {
+        def validSortFields = ['value', 'dueDate', 'status', 'type', 'dateCreated', 'lastUpdated', 'deleted']
+        if (!validSortFields.contains(sortField)) {
+            sortField = 'dueDate'
+        }
+        
+        def validOrders = ['asc', 'desc']
+        if (!validOrders.contains(sortOrder)) {
+            sortOrder = 'desc'
+        }
+        
+        int totalCount = Payment.createCriteria().count {
+            payer {
+                eq('customer', customer)
+            }
+        }
+        
+        def criteria = Payment.createCriteria()
+        List<Payment> paymentList = criteria.list {
+            payer {
+                eq('customer', customer)
+            }
+            order(sortField, sortOrder)
+            maxResults(max)
+            firstResult(offset)
+        }
+        
+        return [
+            paymentList: paymentList,
+            totalCount: totalCount
+        ]
     }
 
     public Payment update(Long id, Map params, Customer customer) {
