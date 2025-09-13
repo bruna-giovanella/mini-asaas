@@ -27,17 +27,7 @@
 </head>
 <body>
 <atlas-screen>
-    <g:render template="/utils/navbar" />
-    <g:render template="/utils/sidebar" />
     <atlas-page class="js-atlas-page">
-        <atlas-page-header
-            slot="header"
-            page-name="${pageProperty(name: "body.page-title")}"
-        >
-            <atlas-breadcrumb slot="breadcrumb">
-                <atlas-breadcrumb-item text="${pageProperty(name: "body.page-title")}" icon="home"></atlas-breadcrumb-item>
-            </atlas-breadcrumb>
-        </atlas-page-header>
         <atlas-page-content slot="content" class="js-atlas-content">
             <g:layoutBody />
         </atlas-page-content>

@@ -37,7 +37,7 @@ class CustomerController {
         try {
             Customer customer = customerService.save(params)
             flash.message = "Conta criada com sucesso"
-            redirect(action: "index", id: customer.id)
+            redirect(action: "login")
 
         } catch (ValidationException validationException) {
             flash.message = "Erro ao salvar conta"
