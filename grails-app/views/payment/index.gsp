@@ -56,7 +56,7 @@
 
 <p>
     <g:link controller="payment" action="create">Nova cobrança</g:link> |
-    <g:link class="btn" controller="customer" action="index" id="${customer.id}">Voltar</g:link>
+    <g:link class="btn" controller="customer" action="index" id="${customer?.id}">Voltar</g:link>
 </p>
 
 </body>
