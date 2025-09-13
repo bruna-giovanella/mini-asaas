@@ -147,14 +147,14 @@ class UserController {
 
             User user = userService.update(username, password, role, customer, id)
             flash.message = "Usuário atualizado com sucesso"
-            redirect(action: "index", id: user.id)
+            redirect(action: "index")
 
         } catch (ValidationException validationException) {
-            flash.message = "Erro ao atualizar usuário"
+            flash.message = "Erro ao atualizar usuário: ${validationException.message}"
             redirect(action: "edit", id: params.id)
         } catch (Exception exception) {
-            flash.message = "Um erro inesperado aconteceu"
-            render(view: "index")
+            flash.message = "Erro inesperado: ${exception.message}"
+            redirect(action: "edit", id: params.id)
         }
     }
 
