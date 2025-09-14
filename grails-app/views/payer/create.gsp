@@ -3,12 +3,12 @@
     <atlas-page-header page-name="Novo Pagador"></atlas-page-header>
     
     <g:if test="${flash.message}">
-    <div class="floating-alert">
-        <atlas-alert type="danger">
-            ${flash.message}
-        </atlas-alert>
-    </div>
-</g:if>
+        <div class="floating-alert">
+            <atlas-alert type="danger">
+                ${flash.message}
+            </atlas-alert>
+        </div>
+    </g:if>
 
 
     <atlas-panel>
