@@ -5,65 +5,85 @@ import org.grails.datastore.mapping.validation.ValidationException
 
 class PaymentController {
 
-    static responseFormats = ['json']
-
     PaymentService paymentService
+
+    private Customer getCustomerLogged() {
+        return Customer.get(7L)
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    def index() {
+        Customer customer = getCustomerLogged()
+        List<Payment> paymentList = paymentService.list(customer)
+        render(view: "index", model: [paymentList: paymentList, customer: customer])
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
+    def show(Long id) {
+        try {
+            Customer customer = getCustomerLogged()
+            Payment payment = paymentService.get(id, customer)
+
+            if (!payment) {
+                flash.message = "Cobrança não encontrada"
+                redirect(action: "index")
+                return
+            }
+            render(view: "show", model: [payment: payment])
+        } catch (Exception exception) {
+            flash.message = "Um erro inesperado aconteceu"
+            render(view: "index")
+        }
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    def create() {
+        try {
+            Customer customer = getCustomerLogged()
+            List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
+            render(view: "create", model: [payers: payers, customer: customer])
+        } catch (Exception exception) {
+            flash.message = "Um erro inesperado aconteceu"
+            render(view: "index")
+        }
+    }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def save() {
         Customer customer = getCustomerLogged()
 
-        Long id = params.long("id")
-        if (!id) {
-            render(status: 400, contentType: 'application/json', text: [errors: ["ID do pagamento é obrigatório"]])
-            return
-        }
-
-        Payer payer = Payer.findByIdAndCustomerAndDeleted(id, customer, false)
+        Long payerId = params.long("payer.id")
+        Payer payer = Payer.findByIdAndCustomerAndDeleted(payerId, customer, false)
         if (!payer) {
-            render(status: 400, contentType: 'application/json', text: [errors: ["Pagador não encontrado"]])
+            flash.message = "Pagador não encontrado"
+            redirect(action: "index")
             return
         }
 
         try {
             Payment payment = paymentService.save(params, payer)
-            respond(payment, [status: 201])
-
+            flash.message = "Cobrança criada com sucesso"
+            redirect(action: "show", id: payment.id)
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro de validação: ${validationException.errors.allErrors*.defaultMessage.join(', ')}"
+            redirect(action: "create")
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        }
-    }
-
-    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
-    def show() {
-        try {
-            Long id = params.long("id")
-            Customer customer = getCustomerLogged()
-            Payment payment = paymentService.get(id, customer)
-
-            if (!payment) {
-                render(status: 404, text: "Pagador não encontrado")
-                return
-            }
-            respond payment
-
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro inesperado ao salvar cobrança"
+            redirect(action: "create")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
-    def list() {
-        try {
-            Customer customer = getCustomerLogged()
-            List<Payment> paymentList = paymentService.list(customer)
-            respond paymentList
-
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+    def edit (Long id) {
+        Customer customer = getCustomerLogged()
+        Payment payment = paymentService.get(id, customer)
+        if (!payment) {
+            flash.message = "Cobrança não encontrada"
+            redirect(action: "index")
+            return
         }
+        List<Payer> payers = Payer.findAllByCustomerAndDeleted(customer, false)
+        render(view: "edit", model: [payment: payment, payers: payers, customer: customer])
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
@@ -71,70 +91,58 @@ class PaymentController {
         try {
             Customer customer = getCustomerLogged()
             Long id = params.long("id")
-            Payment updatedPayment = paymentService.update(id, params, customer)
-            respond(updatedPayment, [status: 200])
+            Payment payment = paymentService.update(id, params, customer)
+            flash.message = "Pagador atualizado com sucesso"
+            redirect(action: "show", id: payment.id)
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao atualizar pagador"
+            redirect(action: "edit", id: params.id)
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro inesperado ao atualizar pagador"
+            redirect(action: "edit", id: params.id)
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
-    def delete() {
+    def delete(Long id ) {
         try {
             Customer customer = getCustomerLogged()
-            Long id = params.long("id")
             paymentService.delete(id, customer)
-            render(status: 204)
+            flash.message = "Cobrança removida com sucesso"
+            redirect(action: "index")
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao deletar cobrança"
+            redirect(action: "index")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
-    def restore() {
+    def restore(Long id) {
         try {
             Customer customer = getCustomerLogged()
-            Long id = params.long("id")
-            Payment restoredPayment = paymentService.restore(id, customer)
-            render(status: 200)
+            paymentService.restore(id, customer)
+            flash.message = "Cobrança restaurada com sucesso"
+            redirect(action: "index")
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao restaurar cobrança"
+            redirect(action: "index")
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO'])
-    def confirmInCash() {
+    def confirmInCash(Long id) {
         try {
             Customer customer = getCustomerLogged()
-            Long id = params.long('id')
             Payment payment = paymentService.confirmInCash(id, customer)
-            respond(payment, [status: 200])
+            flash.message = "Cobrança recebida com sucesso"
+            redirect(action: "index")
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 400, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (SecurityException securityException) {
-            render(status: 403, contentType: 'application/json', text: [error: "Você não tem permissão para acessar este recurso"].toString())
-        } catch (IllegalStateException illegalStateException) {
-            render(status: 409, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        } catch (Exception exception) {
+            flash.message = "Erro ao confirmar recebimento de cobrança"
+            redirect(action: "index")
         }
-    }
-
-    private Customer getCustomerLogged() {
-        return Customer.get(1L)
     }
 }
