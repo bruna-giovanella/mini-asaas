@@ -1,4 +1,4 @@
-<g:applyLayout name="external">
+<g:applyLayout name="loginLayout">
 
     <g:if test="${flash.message}">
         <div class="floating-alert">
