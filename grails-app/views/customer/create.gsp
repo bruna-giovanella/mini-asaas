@@ -89,7 +89,10 @@
             <atlas-divider></atlas-divider>
 
             <atlas-layout gap="2" inline>
-                <g:submitButton name="save" value="Criar Conta" class="btn btn-primary"/>
+                <g:submitButton
+                    name="save"
+                    value="Criar Conta"
+                    class="btn-primario"/>
             </atlas-layout>
         </g:form>
 
@@ -118,4 +121,20 @@
     right: 20px;
     z-index: 1000;
 }
+
+    .btn-primario {
+        background-color: #002cbd;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 16px;
+        font-weight: 540;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-primario:hover {
+        background-color: #00167a;
+    }
 </style>
