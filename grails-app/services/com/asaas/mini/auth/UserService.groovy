@@ -71,7 +71,7 @@ class UserService {
             throw new IllegalArgumentException("Role '${role}' não encontrada")
         }
 
-        UserRole.findAllByUser(user)*.delete(flush: true)
+        UserRole.findAllByUser(user).collect { it.delete(flush: true) }
         UserRole.create(user, roleObj, true)
 
         return user.save(flush: true, failOnError: true)
