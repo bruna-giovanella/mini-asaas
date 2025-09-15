@@ -41,6 +41,36 @@ class UserController {
     }
 
     @Secured(['ROLE_ADMINISTRADOR'])
+    def show() {
+        try {
+            Customer customer = getCustomerLogged()
+            Long id = params.long("id")
+            User user = userService.get(customer, id)
+
+            if (!user) {
+                render(status: 404, text: "Usuário não encontrado")
+                return
+            }
+            respond user
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR'])
+    def list() {
+        try {
+            Customer customer = getCustomerLogged()
+            List<User> userList = userService.list(customer)
+            respond userList
+
+        } catch (Exception exception) {
+            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+        }
+    }
+
+    @Secured(['ROLE_ADMINISTRADOR'])
     def delete() {
         try {
             Customer customer = getCustomerLogged()
@@ -72,24 +102,6 @@ class UserController {
             render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
         } catch (Exception exception) {
             log.error("Erro ao deletar usuário", exception)
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        }
-    }
-
-    @Secured('permitAll')
-    def show() {
-        try {
-            Customer customer = getCustomerLogged()
-            Long id = params.long("id")
-            User user = userService.get(customer, id)
-
-            if (!user) {
-                render(status: 404, text: "Usuário não encontrado")
-                return
-            }
-            respond user
-
-        } catch (Exception exception) {
             render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         }
     }

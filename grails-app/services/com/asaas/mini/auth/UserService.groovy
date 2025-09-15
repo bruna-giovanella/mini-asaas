@@ -35,6 +35,19 @@ class UserService {
         return user
     }
 
+    public User get(Customer customer, Long id) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        return user
+    }
+
+    public List<User> list(Customer customer) {
+        return User.findAllByCustomerAndDeleted(customer, false)
+    }
+
     public void delete(Customer customer, Long id) {
         if (!id) {
             throw new IllegalArgumentException("O ID é obrigatório")
@@ -78,14 +91,4 @@ class UserService {
         userRole.save(failOnError:true)
 
     }
-
-    public User get(Customer customer, Long id) {
-        if (!id) {
-            throw new IllegalArgumentException("O ID é obrigatório")
-        }
-        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
-
-        return user
-    }
-
 }
