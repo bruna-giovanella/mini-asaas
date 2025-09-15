@@ -14,7 +14,7 @@ class UserRole extends BaseEntity implements Serializable {
 
     static constraints = {
         role nullable: false
-        user nallable: false
+        user nullable: false
     }
 
     static UserRole create(User user, Role role, boolean flush = false) {

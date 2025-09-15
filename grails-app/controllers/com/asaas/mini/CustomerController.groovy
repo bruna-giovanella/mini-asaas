@@ -5,85 +5,111 @@ import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
 
-    static responseFormats = ['json']
     CustomerService customerService
+
+    @Secured('permitAll')
+    def create() {
+        render(view: "create")
+    }
 
     @Secured('permitAll')
     def save() {
         try {
             Customer customer = customerService.save(params)
-            respond(customer, [status: 201])
+            flash.message = "Conta criada com sucesso"
+            redirect(action: "index", id: customer.id)
 
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao salvar conta"
+            render(view: "create", model: [customer: params])
         } catch (Exception exception) {
-            log.error("Erro ao salvar cliente", exception)
-            render(status: 500, contentType: 'application/json', text: [error: exception.message].toString())
+            flash.message = "Um erro inesperado aconteceu"
+            render(view: "create", model: [customer: params])
         }
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
-    def show() {
-        try {
-            Long id = params.long("id")
-            Customer customer = customerService.get(id)
-
-            if (!customer) {
-                render(status: 404, text: "Cliente não encontrado")
-                return
-            }
-            respond customer
-
-        } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+    def index(Long id) {
+        Customer customer = customerService.get(id);
+        if (!customer) {
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
+            return
         }
+        render(view: "index", model: [customer: customer])
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
+    @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
+    def show(Long id) {
+        Customer customer = customerService.get(id)
+        if (!customer) {
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
+            return
+        }
+        render(view: "show", model: [customer: customer])
+    }
+
+    @Secured('ROLE_ADMINISTRADOR')
+    def edit(Long id) {
+        Customer customer = customerService.get(id)
+        if (!customer) {
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
+            return
+        }
+        render(view: "edit", model: [customer: customer])
+    }
+
+    @Secured('ROLE_ADMINISTRADOR')
     def update() {
         try {
             Long id = params.long("id")
             Customer customer = customerService.update(id, params)
-            respond(customer, [status: 200])
+            flash.message = "Conta atualizada com sucesso"
+            redirect(action: "index", id: customer.id)
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
         } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao atualizar conta"
+            redirect(action: "edit", id: params.id)
+        } catch (IllegalArgumentException illegalArgumentException) {
+            flash.message = "Erro ao atualizar conta"
+            redirect(action: "edit", id: params.id)
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Um erro inesperado aconteceu"
+            redirect(action: "edit", id: params.id)
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
-    def delete() {
+    @Secured('ROLE_ADMINISTRADOR')
+    def delete(Long id) {
         try {
-            Long id = params.long("id")
             customerService.delete(id)
-            render(status: 204)
+            flash.message = "Conta removida com sucesso"
+            redirect(action: "index", id: id)
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao excluir conta"
+            redirect(action: "show", id: id)
         } catch (Exception exception) {
-        render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao excluir conta"
+            redirect(action: "show", id: id)
         }
     }
 
-    @Secured(['ROLE_ADMINISTRADOR'])
-    def restore() {
+    @Secured('ROLE_ADMINISTRADOR')
+    def restore(Long id) {
         try {
-            Long id = params.long("id")
             customerService.restore(id)
-            render(status: 200)
+            flash.message = "Conta restaurada com sucesso"
+            redirect(action: "index", id: id)
 
         } catch (IllegalArgumentException illegalArgumentException) {
-            render(status: 404, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
-        } catch (ValidationException validationException) {
-            render(status: 400, contentType: 'application/json', text: [errors: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Conta não encontrada"
+            redirect(action: "create")
         } catch (Exception exception) {
-            render(status: 500, contentType: 'application/json', text: [error: "Um erro inesperado aconteceu"].toString())
+            flash.message = "Erro ao restaurar conta"
+            redirect(action: "create")
         }
     }
 }
