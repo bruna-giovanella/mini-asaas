@@ -30,7 +30,7 @@ class CustomerController {
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index(Long id) {
-        Customer customer = customerService.get(id);
+        Customer customer = customerService.get(id)
         if (!customer) {
             flash.message = "Conta não encontrada"
             redirect(action: "create")
