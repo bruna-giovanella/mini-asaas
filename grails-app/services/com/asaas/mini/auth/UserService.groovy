@@ -1,6 +1,7 @@
 package com.asaas.mini.auth
 
 import com.asaas.mini.Customer
+import com.asaas.mini.Payer
 import grails.gorm.transactions.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 
@@ -78,5 +79,13 @@ class UserService {
 
     }
 
+    public User get(Customer customer, Long id) {
+        if (!id) {
+            throw new IllegalArgumentException("O ID é obrigatório")
+        }
+        User user = User.findByIdAndCustomerAndDeleted(id, customer, false)
+
+        return user
+    }
 
 }
