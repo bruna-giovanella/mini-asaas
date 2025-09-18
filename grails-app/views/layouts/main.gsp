@@ -62,7 +62,7 @@
                     value="users"
                     icon="users"
                     text="Usuários"
-                    href="/user/index"
+                    href="${createLink(controller: 'user', action: 'index')}">
                 >
                 </atlas-sidebar-menu-item>
 
@@ -70,7 +70,7 @@
                     value="payer"
                     icon="address-book"
                     text="Clientes"
-                    href="/payer/index"
+                    href="${createLink(controller: 'payer', action: 'index')}">
                 >
                 </atlas-sidebar-menu-item>
 
@@ -78,7 +78,7 @@
                     value="payment"
                     icon="wallet"
                     text="Cobranças"
-                    href="/payment/index"
+                    href="${createLink(controller: 'payment', action: 'index')}">
                 >
                 </atlas-sidebar-menu-item>
 
