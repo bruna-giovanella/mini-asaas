@@ -111,7 +111,11 @@ class UserService {
         UserRole.findAllByUser(user).collect { it.delete(flush: true) }
         UserRole.create(user, roleObj, true)
 
-        return user.save(flush: true, failOnError: true)
+        if (!user.save(flush: true)) {
+            throw new RuntimeException("Erro ao salvar usuário: ${user.errors.allErrors}")
+        }
+
+        return user
     }
 
     public void delete(Customer customer, Long id) {
