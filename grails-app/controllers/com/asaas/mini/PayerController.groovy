@@ -21,9 +21,23 @@ class PayerController {
             redirect(controller: "login", action: "auth")
             return
         }
+
+        int max = Math.min(params.int('max') ?: 10, 100)
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'name'
+        String order = params.order ?: 'asc'
         
-        List<Payer> payerList = payerService.list(customer);
-        render(view: "index", model: [payerList: payerList, customer: customer])
+        def result = payerService.listPaginated(customer, max, offset, sort, order)
+        
+        render(view: "index", model: [
+            payerList: result.payerList,
+            customer: customer,
+            totalCount: result.totalCount,
+            max: max,
+            offset: offset,
+            sort: sort,
+            order: order
+        ])
     }
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
@@ -126,11 +140,14 @@ class PayerController {
             }
             
             payerService.delete(id, customer)
-            flash.message = "Pagador removido com sucesso"
+            flash.message = "Cliente removido com sucesso"
             redirect(action: "index")
 
+        } catch (IllegalArgumentException illegalArgumentException) {
+            flash.message = illegalArgumentException.message
+            redirect(action: "index")
         } catch (Exception exception) {
-            flash.message = "Erro ao excluir pagador"
+            flash.message = "Erro inesperado ao excluir cliente"
             redirect(action: "index")
         }
     }
