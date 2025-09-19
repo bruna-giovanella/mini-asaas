@@ -16,7 +16,7 @@ class CustomerController {
         if (id) {
             customer = customerService.get(id)
             if (!customer) {
-                flash.message = "Conta não encontrada"
+                flash.message = "Um erro inesperado aconteceu"
                 redirect(action: "create")
                 return
             }
