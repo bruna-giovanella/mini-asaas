@@ -23,25 +23,81 @@
         body, html {
             height: 100%;
         }
+
+        .floating-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: auto;
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
-<atlas-screen>
-    <g:render template="/utils/navbar" />
-    <g:render template="/utils/sidebar" />
-    <atlas-page class="js-atlas-page">
-        <atlas-page-header
-            slot="header"
-            page-name="${pageProperty(name: "body.page-title")}"
-        >
-            <atlas-breadcrumb slot="breadcrumb">
-                <atlas-breadcrumb-item text="${pageProperty(name: "body.page-title")}" icon="home"></atlas-breadcrumb-item>
-            </atlas-breadcrumb>
-        </atlas-page-header>
-        <atlas-page-content slot="content" class="js-atlas-content">
-            <g:layoutBody />
-        </atlas-page-content>
-    </atlas-page>
-</atlas-screen>
+    <atlas-screen>
+        <atlas-navbar slot="navbar">
+            <atlas-icon-button
+                slot="actions"
+                icon="bell"
+                size="4x"
+                hoverable
+                tooltip="Notificações"
+            >
+            </atlas-icon-button>
+        </atlas-navbar>
+
+        <atlas-sidebar slot="sidebar" product="asaas" home-path="/customer/index">
+            <atlas-sidebar-menu slot="body">
+                <atlas-sidebar-menu-item
+                    value="customer"
+                    icon="home"
+                    text="Dashboard"
+                    href="${createLink(controller: 'customer', action: 'index', id: customer?.id)}">
+                    active
+                >
+                </atlas-sidebar-menu-item>
+
+                <atlas-sidebar-menu-item
+                    value="users"
+                    icon="users"
+                    text="Usuários"
+                    href="${createLink(controller: 'user', action: 'index')}">
+                >
+                </atlas-sidebar-menu-item>
+
+                <atlas-sidebar-menu-item
+                    value="payer"
+                    icon="address-book"
+                    text="Clientes"
+                    href="${createLink(controller: 'payer', action: 'index')}">
+                >
+                </atlas-sidebar-menu-item>
+
+                <atlas-sidebar-menu-item
+                    value="payment"
+                    icon="wallet"
+                    text="Cobranças"
+                    href="${createLink(controller: 'payment', action: 'index')}">
+                >
+                </atlas-sidebar-menu-item>
+
+                <atlas-sidebar-menu-item
+                    value="logout"
+                    icon="x"
+                    text="Logout"
+                    href="${createLink(controller: 'login', action: 'logout')}">
+                >
+                </atlas-sidebar-menu-item>
+
+            </atlas-sidebar-menu>
+        </atlas-sidebar>
+
+        <atlas-page class="js-atlas-page">
+            <atlas-page-content slot="content" class="js-atlas-content">
+                <g:layoutBody />
+            </atlas-page-content>
+        </atlas-page>
+    </atlas-screen>
 </body>
 </html>
