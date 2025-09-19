@@ -1,11 +1,13 @@
 package com.asaas.mini
 
 import com.asaas.mini.auth.SecurityService
+import com.asaas.mini.enums.NotificationType
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class PaymentController {
 
+    NotificationService notificationService
     PaymentService paymentService
     SecurityService securityService
 
@@ -43,7 +45,9 @@ class PaymentController {
                 redirect(action: "index")
                 return
             }
+
             render(view: "show", model: [payment: payment])
+
         } catch (Exception exception) {
             flash.message = "Um erro inesperado aconteceu"
             render(view: "index")
@@ -89,6 +93,13 @@ class PaymentController {
             Payment payment = paymentService.save(params, payer)
             flash.message = "Cobrança criada com sucesso"
             redirect(action: "show", id: payment.id)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.PAYMENT_CREATED,
+                    "Cobrança criada com sucesso",
+                    "payment", "show", payment.id)
+
         } catch (ValidationException validationException) {
             flash.message = "Erro de validação: ${validationException.errors.allErrors*.defaultMessage.join(', ')}"
             redirect(action: "create")
@@ -132,6 +143,12 @@ class PaymentController {
             flash.message = "Cobrança atualizada com sucesso"
             redirect(action: "show", id: payment.id)
 
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.PAYMENT_UPDATED,
+                    "Cobrança editada com sucesso",
+                    "payment", "show", payment.id)
+
         } catch (ValidationException validationException) {
             flash.message = "Erro ao atualizar cobrança"
             redirect(action: "edit", id: params.id)
@@ -150,8 +167,16 @@ class PaymentController {
                 redirect(controller: "login", action: "auth")
                 return
             }
-            
+
+            Payment payment = paymentService.get(id, customer)
             paymentService.delete(id, customer)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.PAYMENT_DELETED,
+                    "Cobrança deletada com sucesso",
+                    "payment", "show", payment.id)
+
             flash.message = "Cobrança removida com sucesso"
             redirect(action: "index")
 
@@ -170,8 +195,16 @@ class PaymentController {
                 redirect(controller: "login", action: "auth")
                 return
             }
-            
+
+            Payment payment = paymentService.get(id, customer)
             paymentService.restore(id, customer)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.PAYMENT_RESTORED,
+                    "Cobrança criada com sucesso",
+                    "payment", "show", payment.id)
+
             flash.message = "Cobrança restaurada com sucesso"
             redirect(action: "index")
 
@@ -192,6 +225,13 @@ class PaymentController {
             }
             
             Payment payment = paymentService.confirmInCash(id, customer)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.PAYMENT_RECEIVED,
+                    "Cobrança recebida",
+                    "payment", "show", payment.id)
+
             flash.message = "Cobrança recebida com sucesso"
             redirect(action: "index")
 

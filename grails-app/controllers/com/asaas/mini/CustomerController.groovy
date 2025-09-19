@@ -1,11 +1,13 @@
 package com.asaas.mini
 
 import com.asaas.mini.auth.SecurityService
+import com.asaas.mini.enums.NotificationType
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.datastore.mapping.validation.ValidationException
 
 class CustomerController {
 
+    NotificationService notificationService
     CustomerService customerService
     SecurityService securityService
 
@@ -96,6 +98,13 @@ class CustomerController {
             }
             
             Customer customer = customerService.update(id, params)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.CUSTOMER_UPDATED,
+                    "Conta atualizada com sucesso",
+                    "Customer", "show", id)
+
             flash.message = "Conta atualizada com sucesso"
             redirect(action: "index", id: customer.id)
 
@@ -121,6 +130,14 @@ class CustomerController {
             }
             
             customerService.delete(id)
+
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.CUSTOMER_UPDATED,
+                    "Conta deletada com sucesso",
+                    "Customer", "show", id)
+
             flash.message = "Conta removida com sucesso"
             redirect(action: "index", id: id)
 
@@ -141,8 +158,15 @@ class CustomerController {
                 redirect(controller: "login", action: "denied")
                 return
             }
-            
+
             customerService.restore(id)
+
+            notificationService.createNotification(
+                    securityService.getCurrentUser(),
+                    NotificationType.CUSTOMER_UPDATED,
+                    "Conta restaurada com sucesso",
+                    "Customer", "show", id)
+
             flash.message = "Conta restaurada com sucesso"
             redirect(action: "index", id: id)
 

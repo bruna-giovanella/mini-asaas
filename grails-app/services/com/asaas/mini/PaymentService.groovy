@@ -1,5 +1,7 @@
 package com.asaas.mini
 
+import com.asaas.mini.auth.SecurityService
+import com.asaas.mini.enums.NotificationType
 import com.asaas.mini.enums.PaymentType
 import com.asaas.mini.enums.PaymentStatus
 import grails.gorm.transactions.Transactional
@@ -224,14 +226,26 @@ class PaymentService {
 
         List<Payment> paymentsToMarkOverdue = Payment.where {
             status == PaymentStatus.AGUARDANDO_PAGAMENTO &&
-                    dueDate < today &&
-                    deleted == false
+            dueDate < today &&
+            deleted == false
         }.list()
 
         paymentsToMarkOverdue.each { payment ->
             payment.status = PaymentStatus.VENCIDA
             payment.save(flush: true)
+
             emailService.sendPaymentExpiredNotification(payment)
+
+            Customer customer = payment.payer.customer
+
+            notificationService.createForCustomerUsers(
+                    customer,
+                    NotificationType.PAYMENT_OVERDUE,
+                    "Cobrança vencida",
+                    "payment",
+                    "show",
+                    payment.id
+            )
         }
     }
 }
