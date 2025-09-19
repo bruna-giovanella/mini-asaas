@@ -11,17 +11,28 @@ class CustomerController {
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
     def index(Long id) {
-        Customer customer = customerService.get(id)
-        if (!customer) {
-            flash.message = "Conta não encontrada"
-            redirect(action: "create")
-            return
-        }
+        Customer customer
         
-        if (!securityService.canAccessCustomer(customer)) {
-            flash.message = "Acesso negado"
-            redirect(controller: "login", action: "denied")
-            return
+        if (id) {
+            customer = customerService.get(id)
+            if (!customer) {
+                flash.message = "Um erro inesperado aconteceu"
+                redirect(action: "create")
+                return
+            }
+            
+            if (!securityService.canAccessCustomer(customer)) {
+                flash.message = "Acesso negado"
+                redirect(controller: "login", action: "denied")
+                return
+            }
+        } else {
+            customer = securityService.getCurrentCustomer()
+            if (!customer) {
+                flash.message = "Usuário não autenticado"
+                redirect(controller: "login", action: "auth")
+                return
+            }
         }
         
         render(view: "index", model: [customer: customer])
@@ -37,7 +48,7 @@ class CustomerController {
         try {
             Customer customer = customerService.save(params)
             flash.message = "Conta criada com sucesso"
-            redirect(action: "index", id: customer.id)
+            redirect(action: "login")
 
         } catch (ValidationException validationException) {
             flash.message = "Erro ao salvar conta"
