@@ -21,8 +21,8 @@ class UserController {
             redirect(controller: "login", action: "auth")
             return
         }
-        
-        int max = params.int('max') ?: 10
+
+        int max = Math.min(params.int('max') ?: 10, 100)
         int offset = params.int('offset') ?: 0
         String sort = params.sort ?: 'username'
         String order = params.order ?: 'asc'
