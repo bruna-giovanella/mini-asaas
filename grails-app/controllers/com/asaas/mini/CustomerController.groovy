@@ -7,6 +7,7 @@ import org.grails.datastore.mapping.validation.ValidationException
 class CustomerController {
 
     CustomerService customerService
+    PaymentService paymentService
     SecurityService securityService
 
     @Secured(['ROLE_ADMINISTRADOR', 'ROLE_FINANCEIRO', 'ROLE_VENDEDOR'])
@@ -34,8 +35,28 @@ class CustomerController {
                 return
             }
         }
-        
-        render(view: "index", model: [customer: customer])
+
+        BigDecimal totalReceived = paymentService.totalReceived(customer)
+        BigDecimal totalOverdue = paymentService.totalOverdue(customer)
+
+        int totalPaymentsReceived = paymentService.totalPaymentsWithPaymentsReceived(customer)
+        int totalPaymentsOverdue  = paymentService.totalPaymentsOverdue(customer)
+
+        int totalPayersReceived = paymentService.totalPayersWithPaymentsReceived(customer)
+        int totalPayersOverdue  = paymentService.totalPayersWithPaymentsOverdue(customer)
+
+        render(view: "index", model: [
+                customer: customer,
+
+                totalReceived: totalReceived,
+                totalOverdue: totalOverdue,
+
+                totalPaymentsReceived: totalPaymentsReceived,
+                totalPaymentsOverdue: totalPaymentsOverdue,
+
+                totalPayersReceived: totalPayersReceived,
+                totalPayersOverdue: totalPayersOverdue
+        ])
     }
 
     @Secured('permitAll')

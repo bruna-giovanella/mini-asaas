@@ -266,4 +266,69 @@ class PaymentService {
             emailService.sendPaymentExpiredNotification(payment)
         }
     }
+
+    public BigDecimal totalReceived(Customer customer) {
+        List<Payment> paymentsReceived = Payment.createCriteria().list {
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+            eq("status", PaymentStatus.RECEBIDA)
+        }
+
+        return (paymentsReceived.sum {it.value} ?: 0) as BigDecimal
+    }
+
+    public int totalPayersWithPaymentsReceived(Customer customer) {
+        List<Payer> payers = Payer.findAllByCustomer(customer)
+
+        int count = (int) payers.count { payer ->
+            List<Payment> payments = Payment.findAllByPayer(payer)
+            payments && payments.every { it.status == PaymentStatus.RECEBIDA }
+        }
+
+       return count
+    }
+
+    public int totalPaymentsWithPaymentsReceived(Customer customer) {
+        List<Payment> payments = Payment.findAllByCustomer(customer)
+
+        int count = (int) payments.count { payment ->
+            payment.status == PaymentStatus.RECEBIDA
+        }
+
+        return count
+    }
+
+    public BigDecimal totalOverdue(Customer customer) {
+        List<Payment> overduePayments = Payment.createCriteria().list {
+            eq("deleted", false)
+            payer {
+                eq("customer", customer)
+            }
+            eq("status", PaymentStatus.VENCIDA)
+        }
+
+        return (overduePayments.sum { it.value } ?: 0) as BigDecimal
+    }
+
+    public int totalPaymentsOverdue(Customer customer) {
+        List<Payment> payments = Payment.findAllByCustomer(customer)
+        int count = (int) payments.count { payment ->
+            payment.status == PaymentStatus.VENCIDA
+        }
+        return count
+    }
+
+    public int totalPayersWithPaymentsOverdue(Customer customer) {
+        List<Payer> payers = Payer.findAllByCustomer(customer)
+
+        int count = (int) payers.count { payer ->
+            List<Payment> payments = Payment.findAllByPayer(payer)
+            payments.any { it.status == PaymentStatus.VENCIDA }
+        }
+
+        return count
+    }
+
 }
