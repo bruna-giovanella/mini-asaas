@@ -4,10 +4,46 @@
     <g:if test="${flash.message}">
         <div class="floating-alert">
             <atlas-alert
-                message="${flash.message}"
+                message="${flash.message}">
             </atlas-alert>
         </div>
     </g:if>
+
+    <atlas-text size="lg" bold>Resumo Financeiro</atlas-text>
+
+    <atlas-layout columns="3" gap="3">
+
+        <atlas-panel>
+            <atlas-text bold>Total Recebido</atlas-text>
+            <atlas-text size="lg">R$ ${totalReceived}</atlas-text>
+        </atlas-panel>
+
+        <atlas-panel>
+            <atlas-text bold>Total Atrasado</atlas-text>
+            <atlas-text size="lg">R$ ${totalOverdue}</atlas-text>
+        </atlas-panel>
+
+        <atlas-panel>
+            <atlas-text bold>Pagamentos Recebidos</atlas-text>
+            <atlas-text size="lg">${totalPaymentsReceived}</atlas-text>
+        </atlas-panel>
+
+        <atlas-panel>
+            <atlas-text bold>Pagamentos Atrasados</atlas-text>
+            <atlas-text size="lg">${totalPaymentsOverdue}</atlas-text>
+        </atlas-panel>
+
+        <atlas-panel>
+            <atlas-text bold>Pagadores que já pagaram tudo</atlas-text>
+            <atlas-text size="lg">${totalPayersReceived}</atlas-text>
+        </atlas-panel>
+
+        <atlas-panel>
+            <atlas-text bold>Pagadores com débitos atrasados</atlas-text>
+            <atlas-text size="lg">${totalPayersOverdue}</atlas-text>
+        </atlas-panel>
+
+    </atlas-layout>
 
     <atlas-panel>
 
